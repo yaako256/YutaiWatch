@@ -1,0 +1,22 @@
+# Environment Variables (Security) ---
+# 秘密鍵やAPIキーを含む可能性があるため絶対にコミットしない
+.env
+.env.*
+!.env.example
+
+# Rustのビルド成果物は巨大になるため必須
+/target
+
+# --- Logs ---
+logs/
+*.log
+
+# --- IDE / Editor Specific ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.idea/
+*.swp
+*.swo
+#.devcontainer/devcontainer.json
