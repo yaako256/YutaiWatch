@@ -15,7 +15,7 @@ services:
     working_dir: /app
     # 仮想端末を割り当てる？
     tty: true
-    command: cargo watch -x check
+    command: bash -c "cargo watch -x check"
 
   # 本番用コンテナ
   # Rustバイナリだけ入れる。
