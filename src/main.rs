@@ -5,5 +5,8 @@ pub mod error;
 pub mod infra;
 
 fn main() {
-    println!("Hello, world!");
+  // ログ表示を起動
+  tracing_subscriber::fmt::init();
+
+  println!("Hello, world!");
 }
