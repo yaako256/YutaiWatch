@@ -6,7 +6,7 @@ services:
     container_name: yutai_watch_dev
     build:
       context: .
-      dockerfile: docker/dev/Dockerfile
+      dockerfile: .docker/dev/Dockerfile
     volumes:
       - .:/app
       - cargo_cache:/usr/local/cargo/registry
@@ -24,7 +24,7 @@ services:
     container_name: yutai_watch
     build:
       context: .
-      dockerfile: docker/prod/Dockerfile
+      dockerfile: .docker/prod/Dockerfile
     restart: unless-stopped
 
 volumes:

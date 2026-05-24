@@ -1,5 +1,3 @@
-# docker/prod/Dockerfile
-# 本番用DockerFile
 # =========================
 # Build Stage
 # =========================
@@ -7,41 +5,63 @@ FROM rust:1.88 AS builder
 
 WORKDIR /app
 
-# 開発用からコピー
-# Dockerbuildを高速にするため、面倒な手順を取る。
-# 依存だけ先にコピー
 COPY Cargo.toml Cargo.lock ./
 
-# ダミーmain
 RUN mkdir src && \
     echo "fn main() {}" > src/main.rs
 
-# 依存ビルドキャッシュ
 RUN cargo build --release
 
-# 本物を上書き
 COPY src ./src
 
-# 本番ビルド
 RUN cargo build --release
+
 
 # =========================
 # Runtime Stage
 # =========================
-FROM alpine:3.22
+FROM python:3.12-slim
 
-RUN apk add --no-cache \
-#    bash \
+# 必要ライブラリ
+RUN apt-get update && apt-get install -y \
+    curl \
     tzdata \
-    curl
+    wget \
+    ca-certificates \
+    libnss3 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libasound2 \
+    && rm -rf /var/lib/apt/lists/*
 
-# timezone設定
+# timezone
 ENV TZ=Asia/Tokyo
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone
 
+WORKDIR /app
+
+# =========================
+# Python dependencies
+# =========================
+COPY requirements.txt ./
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Playwright（※requirementsに含めてない場合のみ）
+RUN python -m playwright install --with-deps chromium
+
+# =========================
 # supercronic
+# =========================
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then \
       ARCH="amd64"; \
@@ -52,9 +72,13 @@ RUN ARCH=$(uname -m) && \
     mv supercronic-linux-${ARCH} /usr/local/bin/supercronic && \
     chmod +x /usr/local/bin/supercronic
 
-WORKDIR /app
-
+# =========================
+# Rust binary
+# =========================
 COPY --from=builder /app/target/release/yutai_watch /app/yutai_watch
+
+# scraper
+COPY scraper ./scraper
 
 COPY docker/prod/crontab /app/crontab
 COPY docker/prod/entrypoint.sh /entrypoint.sh
