@@ -44,5 +44,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
   // データ取得のテスト
   let state = infra::storage::load_state(&config.data.dir_path);
   info!("{:#?}", state);
+
+  let state = state?;
+
+  match state {
+    Some(s) => {
+      // データ入力テスト
+      infra::storage::save_state(&config.data.dir_path, &s)?;
+    }
+    None => println!("値なし"),
+  }
+
   Ok(())
 }

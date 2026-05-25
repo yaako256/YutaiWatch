@@ -46,7 +46,35 @@ pub fn load_state(data_dir: &PathBuf) -> AppResult<Option<State>> {
 }
 
 // state.json の書き込み
-//pub fn save_state(data_dir: &Path, state: &State) -> AppResult<()>;
+pub fn save_state(data_dir: &PathBuf, state: &State) -> AppResult<()> {
+  let state_path = data_dir.join("debug_state.json");
+
+  // pretty json 化
+  let json_text = serde_json::to_string_pretty(state).map_err(|e| {
+    AppError::Parse(serde_json::Error::io(std::io::Error::new(
+      std::io::ErrorKind::InvalidData,
+      format!(
+        "State のJSONシリアライズに失敗しました: path={}, error={}",
+        state_path.display(),
+        e
+      ),
+    )))
+  })?;
+
+  // 書き込み
+  fs::write(&state_path, json_text).map_err(|e| {
+    AppError::Storage(std::io::Error::new(
+      e.kind(),
+      format!(
+        "state.json の書き込みに失敗しました: path={}, error={}",
+        state_path.display(),
+        e
+      ),
+    ))
+  })?;
+
+  Ok(())
+}
 
 // detect_history.jsonl への追記
 //pub fn append_detect_history(data_dir: &Path, entry: &DetectHistory) -> AppResult<()>;
