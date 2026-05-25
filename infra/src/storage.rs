@@ -1,5 +1,6 @@
-use std::fs;
+use std::io::Write;
 use std::path::PathBuf;
+use std::{fs, fs::OpenOptions};
 
 /*
 infra/src/storage.rs
@@ -77,7 +78,51 @@ pub fn save_state(data_dir: &PathBuf, state: &State) -> AppResult<()> {
 }
 
 // detect_history.jsonl への追記
-//pub fn append_detect_history(data_dir: &Path, entry: &DetectHistory) -> AppResult<()>;
+pub fn append_detect_history(data_dir: &PathBuf, entry: &DetectHistory) -> AppResult<()> {
+  let detect_history_path = data_dir.join(constants::file::DETECT_HISTORY_FILE_NAME);
+
+  // pretty json 化
+  let json_text = serde_json::to_string(entry).map_err(|e| {
+    AppError::Parse(serde_json::Error::io(std::io::Error::new(
+      std::io::ErrorKind::InvalidData,
+      format!(
+        "DetectHistory のJSONシリアライズに失敗しました: path={}, error={}",
+        detect_history_path.display(),
+        e
+      ),
+    )))
+  })?;
+
+  // append mode で開く
+  let mut file = OpenOptions::new()
+    .create(true)
+    .append(true)
+    .open(&detect_history_path)
+    .map_err(|e| {
+      AppError::Storage(std::io::Error::new(
+        e.kind(),
+        format!(
+          "detect_history.jsonl のオープンに失敗しました: path={}, error={}",
+          detect_history_path.display(),
+          e
+        ),
+      ))
+    })?;
+
+  // 1行書き込み
+  writeln!(file, "{json_text}").map_err(|e| {
+    AppError::Storage(std::io::Error::new(
+      e.kind(),
+      format!(
+        "detect_history.jsonl の追記に失敗しました: path={}, error={}",
+        detect_history_path.display(),
+        e
+      ),
+    ))
+  })?;
+
+  Ok(())
+}
 
 // update_history.jsonl への追記
 //pub fn append_update_history(data_dir: &Path, entry: &UpdateHistory) -> AppResult<()>;

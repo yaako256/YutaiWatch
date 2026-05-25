@@ -41,19 +41,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("{:#?}", e)
   };
 
-  // データ取得のテスト
+  // stateデータ取得のテスト
   let state = infra::storage::load_state(&config.data.dir_path);
   info!("{:#?}", state);
 
   let state = state?;
 
-  match state {
-    Some(s) => {
-      // データ入力テスト
-      infra::storage::save_state(&config.data.dir_path, &s)?;
+  let state = match state {
+    Some(s) => s,
+    None => {
+      println!("値なし");
+      return Ok(());
     }
-    None => println!("値なし"),
-  }
+  };
+
+  // stateデータ入力テスト
+  infra::storage::save_state(&config.data.dir_path, &state)?;
+
+  // detect_historyデータ入力テスト
+  infra::storage::append_detect_history(
+    &config.data.dir_path,
+    &shared::DetectHistory {
+      detected_at: chrono::Utc::now().into(),
+      updated: true,
+    },
+  )?;
 
   Ok(())
 }
