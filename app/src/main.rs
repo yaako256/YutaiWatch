@@ -3,7 +3,7 @@ use std::fs::File;
 
 use infra;
 use infra_config;
-use shared;
+use shared::{self, errors::AppError};
 
 // 外部ライブラリ
 // ログ出力
@@ -34,10 +34,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   // 設定読み込み
   let config = infra_config::load_config()?;
-  info!("{:#?}", config);
+  // info!("{:#?}", config);
 
   // スクレイピング部分実行のテスト
-  infra::scraper::run_scraper(&config.scraper)?;
+  if let Err(e) = infra::scraper::run_scraper(&config.scraper) {
+    info!("{:#?}", e)
+  };
 
   Ok(())
 }

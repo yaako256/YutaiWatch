@@ -4,7 +4,7 @@
 # スクレイピング関連
 [scraper]
 dir_path = "./scraper/"
-file_name = "main.py"
+file_name = "debug.py"
 python_command = "python3"
 
 # 記録データ関連
