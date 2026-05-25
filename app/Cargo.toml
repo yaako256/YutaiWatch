@@ -4,3 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+# 子クレートたち
+shared = { path = "../shared" }
+infra_config = { path = "../infra_config" }
+
+# 共通ライブラリ
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }

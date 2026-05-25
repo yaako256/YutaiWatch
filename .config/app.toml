@@ -2,7 +2,7 @@
 # ここに定数設定などを書いていく
 
 # スクレイピング関連
-[scarper]
+[scraper]
 dir_path = "./scraper/"
 file_name = "main.py"
 python_command = "python3"
