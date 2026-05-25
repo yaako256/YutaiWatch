@@ -26,3 +26,8 @@
 ## 2026年06月24日
 - `shared`のmodelsや定数の設定をした
 - `infra_config`を作った。
+- `infra`を作った。ファイル入出力、python起動ができるようになった。
+
+次はmonitor(差分判定)の部分を作成する。
+prompt_out_memo.mdにclaudeに作らせた作成手順を残す。
+これに従って作っていけばいい感じになりそう。
