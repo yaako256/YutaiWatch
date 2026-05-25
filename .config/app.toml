@@ -1,0 +1,26 @@
+# app.toml
+# ここに定数設定などを書いていく
+
+# スクレイピング関連
+[scarper]
+dir_path = "./scraper/"
+file_name = "main.py"
+python_command = "python3"
+
+# 記録データ関連
+[data]
+dir_path = "./data/"
+
+# Discord関連の定数定義
+[discord]
+# webhookは.envで上書きする!
+notify_webhook = ["WEBHOOK_URL"]
+error_webhook = ["WEBHOOK_URL"]
+
+
+
+# ログ関連
+# まだやるかは決めてない(エラーログはdiscordに送るため)
+# [logs]
+# dir_path = "logs"
+# file_name = "app.log"
