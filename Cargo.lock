@@ -262,6 +262,10 @@ dependencies = [
 [[package]]
 name = "infra"
 version = "0.1.0"
+dependencies = [
+ "infra_config",
+ "shared",
+]
 
 [[package]]
 name = "infra_config"

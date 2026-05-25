@@ -8,8 +8,7 @@ infra_configは、
 */
 mod config;
 
-// 再エクスポート
-pub use config::{AppConfig, load_config};
+pub use config::*;
 
 // デバッグ用関数
 pub fn debug() {
