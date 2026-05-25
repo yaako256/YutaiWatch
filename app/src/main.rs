@@ -42,7 +42,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
   };
 
   // stateデータ取得のテスト
-  let state = infra::storage::load_state(&config.data.dir_path);
+  let state = infra::storage::load_state(&config.data.dir_path.as_path());
   info!("{:#?}", state);
 
   let state = state?;
@@ -56,16 +56,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
   };
 
   // stateデータ入力テスト
-  infra::storage::save_state(&config.data.dir_path, &state)?;
+  infra::storage::save_state(&config.data.dir_path.as_path(), &state)?;
 
   // detect_historyデータ入力テスト
   infra::storage::append_detect_history(
-    &config.data.dir_path,
+    &config.data.dir_path.as_path(),
     &shared::DetectHistory {
       detected_at: chrono::Utc::now().into(),
       updated: true,
     },
   )?;
 
+  // update_history
+  infra::storage::append_update_history(
+    &config.data.dir_path.as_path(),
+    &shared::UpdateHistory {
+      detected_at: chrono::Utc::now().into(),
+      ticker_symbol: "asdgf".to_string(),
+      ticker_name: "asdga".to_string(),
+      published_at: chrono::Utc::now().into(),
+      title: "gfds".to_string(),
+      url: "sdhd".to_string(),
+    },
+  )?;
   Ok(())
 }
