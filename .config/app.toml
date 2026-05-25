@@ -14,8 +14,8 @@ dir_path = "./data/"
 # Discord関連の定数定義
 [discord]
 # webhookは.envで上書きする!
-notify_webhook = ["WEBHOOK_URL"]
-error_webhook = ["WEBHOOK_URL"]
+notify_webhook = ["WEBHOOK_URL1"]
+error_webhook = ["WEBHOOK_URL2"]
 
 
 

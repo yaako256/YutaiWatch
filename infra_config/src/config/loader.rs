@@ -11,16 +11,20 @@ use crate::config::models::AppConfig;
 
 pub fn load_config() -> Result<AppConfig, config::ConfigError> {
   // dotenv（開発用）
-  dotenvy::dotenv().ok();
+  dotenvy::from_path(".config/.env").ok();
 
   // 設定ファイルをロードする
   let settings = Config::builder()
     // 1. TOMLベース
     .add_source(File::with_name(".config/app.toml").required(false))
     // 2. ENV上書き（APP__PATHS__DATA_DIR_PATH形式）
-    .add_source(Environment::with_prefix("APP").separator("__"))
+    .add_source(
+      Environment::with_prefix("APP")
+        .separator("__")
+        .try_parsing(true)
+        .list_separator(","),
+    )
     .build()?;
 
-  // 定義した設定構造体に入れる
   settings.try_deserialize::<AppConfig>()
 }
