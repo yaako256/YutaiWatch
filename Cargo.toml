@@ -13,7 +13,9 @@ members = [
 # 子クレートでも使用できるようなるライブラリ
 [workspace.dependencies]
 # エラーハンドリング
-anyhow = "1.0"
+# anyhow = "1.0"
+# エラー型の定義用
+thiserror = "2.0.17"
 # ログ・構造化ロギング
 tracing = "0.1"
 # ログの出力・成形用
