@@ -9,7 +9,7 @@ use shared;
 use tracing::info;
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
-fn main() -> anyhow::Result<()> {
+fn main() {
   // ログ出力の設定
   // 環境変数 RUST_LOG からログレベルを読み込み、無ければデフォルトで「info」にする
   // ファイル出力とかをすぐ増やせて拡張性ましまし、最近流行の定義方法らしい
@@ -34,6 +34,4 @@ fn main() -> anyhow::Result<()> {
   // 設定読み込み
   let config = infra_config::load_config();
   info!("{:#?}", config);
-
-  Ok(())
 }
