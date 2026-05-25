@@ -4,3 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+# 外部クレート(共通)
+serde = { workspace = true }
+
+# 外部クレート(固有)
+# configの定番クレート
+config = "0.14"
+# envファイル読込用
+dotenvy = "0.15"

@@ -1,14 +1,17 @@
-pub fn add(left: u64, right: u64) -> u64 {
-  left + right
-}
+/*
+infra_config\src\lib.rs
 
-#[cfg(test)]
-mod tests {
-  use super::*;
+infra_configは、
+- 設定のロード
+- 設定の構造体定義
+を司るクレート
+*/
+mod config;
 
-  #[test]
-  fn it_works() {
-    let result = add(2, 2);
-    assert_eq!(result, 4);
-  }
+// 再エクスポート
+pub use config::{AppConfig, load_config};
+
+// デバッグ用関数
+pub fn debug() {
+  println!("hello infra_config");
 }
