@@ -41,5 +41,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("{:#?}", e)
   };
 
+  // データ取得のテスト
+  let state = infra::storage::load_state(&config.data.dir_path);
+  info!("{:#?}", state);
   Ok(())
 }
