@@ -1,6 +1,7 @@
 // 標準ライブラリ
 use std::fs::File;
 
+use infra;
 use infra_config;
 use shared;
 
@@ -9,7 +10,7 @@ use shared;
 use tracing::info;
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
   // ログ出力の設定
   // 環境変数 RUST_LOG からログレベルを読み込み、無ければデフォルトで「info」にする
   // ファイル出力とかをすぐ増やせて拡張性ましまし、最近流行の定義方法らしい
@@ -32,6 +33,11 @@ fn main() {
   infra_config::debug();
 
   // 設定読み込み
-  let config = infra_config::load_config();
+  let config = infra_config::load_config()?;
   info!("{:#?}", config);
+
+  // スクレイピング部分実行のテスト
+  infra::scraper::run_scraper(&config.scraper)?;
+
+  Ok(())
 }

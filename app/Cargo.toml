@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 # 子クレートたち
 shared = { path = "../shared" }
+infra= { path = "../infra" }
 infra_config = { path = "../infra_config" }
 
 # 共通ライブラリ

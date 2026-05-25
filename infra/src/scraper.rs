@@ -2,8 +2,10 @@
 infra/src/scraper.rs
 pythonを実行する部分
 */
+use std::process::Command;
 
 use infra_config::ScraperConfig;
+use shared::errors::{AppError, AppResult};
 
 /// scraper pythonを実行する
 pub fn run_scraper(config: &ScraperConfig) -> AppResult<ScraperOutput> {
@@ -12,8 +14,15 @@ pub fn run_scraper(config: &ScraperConfig) -> AppResult<ScraperOutput> {
 
   // scraper pythonを実行
   // その出力を取得
-  let output = Command::new("python3")
-    .arg("/app/scraper/main.py")
+  let output = Command::new(config.python_command.clone())
+    .arg(config.dir_path.join(config.file_name.clone()))
     .output()
     .expect("failed");
+
+  Ok(ScraperOutput { _a: 0 })
+}
+
+// 仮で構造体を定義
+pub struct ScraperOutput {
+  _a: i8,
 }
