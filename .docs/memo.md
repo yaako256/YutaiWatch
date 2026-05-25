@@ -24,3 +24,5 @@
 
 
 ## 2026年06月24日
+- `shared`のmodelsや定数の設定をした
+- `infra_config`を作った。
