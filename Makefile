@@ -34,7 +34,7 @@ build:
 
 # 本番ログ
 logs:
-	docker compose logs -f yutai_watch
+	docker compose logs -f yutai_watch_dev
 
 # 開発ログ
 devlogs:

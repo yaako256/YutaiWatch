@@ -11,36 +11,54 @@ pub fn debug() {
   println!("Hello from shared!");
 }
 
-// 差分判定の本体
-// stateと照合し、未通知のitemだけを返す
-pub fn detect_new_item(output: &ScraperOutput, state: &State) -> AppResult<Vec<ScrapedItem>> {
+/// 差分判定の本体
+/// stateと照合し、未通知のitemだけを返す
+pub fn detect_new_item(
+  output: &ScraperOutput,
+  state: &State,
+) -> AppResult<Vec<(String, ScrapedItem)>> {
+  // デバッグ用ログ
   info!("今から差分判定するよ");
 
+  // ScraperOutputからitemを取得
+  let items = &output.items;
+
+  // itemが空の場合の処理
+  if items.is_empty() {
+    info!("取得したitemが空でした");
+    return Ok(vec![]);
+  }
+
+  // 新しいitemを入れるところ
+  let mut new_items: Vec<(String, ScrapedItem)> = Vec::new();
+
+  // itemをforで回す
+  for item in items {
+    // Sha256IDの生成
+    let fingerprint = generate_fingerprint(item);
+
+    if !state.notified_item_keys.contains(&fingerprint) {
+      info!("新着item検出: sha256:{}", fingerprint);
+      new_items.push((fingerprint, item.clone())); // タプルで追加
+    } else {
+      info!("既通知のitemをスキップ: sha256:{}", fingerprint);
+    }
+  }
+
   // デバッグ用に直値で返す
-  Ok(
-    (vec![ScrapedItem {
-      item_key: "20260525_002".to_string(),
-      ticker_symbol: "5678".to_string(),
-      ticker_name: "テストホールディングス".to_string(),
-      published_at: "2026-05-25T10:30:00+09:00".to_string(),
-      title: "優待新設のお知らせ".to_string(),
-      url: "https://example.com/item2".to_string(),
-    }]),
-  )
+  Ok(new_items)
 }
 
-/*
-pub fn generate_fingerprint(item: &ScrapedItem) -> String {
+/// 判別用のfingerprintを出力する関数
+fn generate_fingerprint(item: &ScrapedItem) -> String {
+  // 内容をつなげたベース文字列を作成
   let source = format!(
     "{}|{}|{}|{}",
-    normalize_url(&item.url),
-    normalize_datetime(&item.published_at),
-    item.ticker_symbol.trim(),
-    normalize_title(&item.title),
+    &item.url, &item.published_at, &item.ticker_symbol, &item.title,
   );
-
+  // Hash化
   let hash = Sha256::digest(source.as_bytes());
 
-  format!("sha256:{:x}", hash)
+  // stringとしてreturn
+  format!("{:x}", hash)
 }
- */

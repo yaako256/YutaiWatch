@@ -17,7 +17,6 @@ pub struct ScraperOutput {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScrapedItem {
-  pub item_key: String, // これいらない説ある
   pub ticker_symbol: String,
   pub ticker_name: String,
   pub published_at: String,
