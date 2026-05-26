@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+# 子クレートたち
+shared = { path = "../shared" }
+
 # 外部クレート(共通)
 serde = { workspace = true }
 

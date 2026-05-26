@@ -8,9 +8,10 @@ configをapp.tomlや.envからloadする関数の定義
 use config::{Config, Environment, File};
 // 内部ライブラリ
 use crate::config::models::AppConfig;
+use shared::errors::{AppError, AppResult};
 
-pub fn load_config() -> Result<AppConfig, config::ConfigError> {
-  // dotenv（開発用）
+pub fn load_config() -> AppResult<AppConfig> {
+  // dotenv
   dotenvy::from_path(".config/.env").ok();
 
   // 設定ファイルをロードする
@@ -24,7 +25,11 @@ pub fn load_config() -> Result<AppConfig, config::ConfigError> {
         .try_parsing(true)
         .list_separator(","),
     )
-    .build()?;
+    .build()
+    .map_err(|e| AppError::Config(e.to_string()))?;
 
-  settings.try_deserialize::<AppConfig>()
+  // AppConfigにデシリアライズ
+  settings
+    .try_deserialize::<AppConfig>()
+    .map_err(|e| AppError::Config(e.to_string()))
 }
