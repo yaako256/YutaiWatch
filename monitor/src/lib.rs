@@ -29,6 +29,7 @@ pub fn detect_new_item(output: &ScraperOutput, state: &State) -> AppResult<Vec<S
   )
 }
 
+/*
 pub fn generate_fingerprint(item: &ScrapedItem) -> String {
   let source = format!(
     "{}|{}|{}|{}",
@@ -42,3 +43,4 @@ pub fn generate_fingerprint(item: &ScrapedItem) -> String {
 
   format!("sha256:{:x}", hash)
 }
+ */
