@@ -23,7 +23,7 @@
 次は`infra_config`部分を仮作成する。
 
 
-## 2026年06月24日
+## 2026年06月25日
 - `shared`のmodelsや定数の設定をした
 - `infra_config`を作った。
 - `infra`を作った。ファイル入出力、python起動ができるようになった。
@@ -31,3 +31,30 @@
 次はmonitor(差分判定)の部分を作成する。
 prompt_out_memo.mdにclaudeに作らせた作成手順を残す。
 これに従って作っていけばいい感じになりそう。
+
+
+## 2026年05月26日
+monitor(差分判定)の部分を作成している。
+サイトにIDがないことが判明した。てかない方が多いらしい。
+URLが擬似IDとして判断できるため、それを組み合わせながら自分でID生成。それをStateに持たせることにする。
+ID生成はmonitorの責務らしいので、そこで作る。
+ID生成はこのようにする。
+
+
+メモ。この方法を使ってIDを生成する。
+
+use sha2::{Digest, Sha256};
+
+pub fn generate_fingerprint(item: &ScrapedItem) -> String {
+    let source = format!(
+        "{}|{}|{}|{}",
+        normalize_url(&item.url),
+        normalize_datetime(&item.published_at),
+        item.ticker_symbol.trim(),
+        normalize_title(&item.title),
+    );
+
+    let hash = Sha256::digest(source.as_bytes());
+
+    format!("sha256:{:x}", hash)
+}
