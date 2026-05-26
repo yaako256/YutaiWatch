@@ -1,6 +1,7 @@
 // 標準ライブラリ
 use std::fs::File;
 
+use discord;
 use infra;
 use infra_config;
 use monitor;
