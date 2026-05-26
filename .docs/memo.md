@@ -8,7 +8,11 @@
 
 - HTMLパースで使うクラス名の定義とかはどこで行おう。
 
-- configのloaderでが雑魚いせいで、.envが横長くなっている。いつか`,`以外でパースして取得させたい
+- configのloaderが雑魚いせいで、.envが横長くなっている。いつか`,`以外でパースして取得させたい
+
+- CLIで、init、monitorのほかにresizeみたいなやつを作って、1か月に1回くらいdetect_historyとupdate_historyの古い部分を消すのがいい気がする。その時はconstantsのfileに定数を追加する。
+
+- update_historyが毎回開いたり閉じたりしている問題
 
 # やったことを書いていく
 ## 2026年05月24日
