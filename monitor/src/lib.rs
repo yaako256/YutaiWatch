@@ -11,8 +11,8 @@ pub fn debug() {
   println!("Hello from shared!");
 }
 
-// 差分判定の本体
-// stateと照合し、未通知のitemだけを返す
+/// 差分判定の本体
+/// stateと照合し、未通知のitemだけを返す
 pub fn detect_new_item(output: &ScraperOutput, state: &State) -> AppResult<Vec<ScrapedItem>> {
   info!("今から差分判定するよ");
 
@@ -29,18 +29,16 @@ pub fn detect_new_item(output: &ScraperOutput, state: &State) -> AppResult<Vec<S
   )
 }
 
-/*
+/// 判別用のfingerprintを出力する関数
 pub fn generate_fingerprint(item: &ScrapedItem) -> String {
+  // 内容をつなげたベース文字列を作成
   let source = format!(
     "{}|{}|{}|{}",
-    normalize_url(&item.url),
-    normalize_datetime(&item.published_at),
-    item.ticker_symbol.trim(),
-    normalize_title(&item.title),
+    &item.url, &item.published_at, &item.ticker_symbol.trim, &item.title,
   );
-
+  // Hash化
   let hash = Sha256::digest(source.as_bytes());
 
+  // stringとしてreturn
   format!("sha256:{:x}", hash)
 }
- */
