@@ -1,8 +1,10 @@
 # Makefile
 # PHONY: ファイルではないという指定(ファイルは更新されていないと実行されない): 命令である
-.PHONY: dev prod down logs devshell
+.PHONY: run dev prod deploy down logs devlogs devshell build reset
 
-.PHONY: dev prod deploy down logs devlogs devshell build reset
+# テスト実行
+run:
+	cargo run -p app
 
 # 開発起動
 dev:

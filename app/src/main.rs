@@ -1,15 +1,17 @@
 // 標準ライブラリ
 use std::fs::File;
 
+use infra;
 use infra_config;
-use shared;
+use monitor;
+use shared::{self, errors::AppError};
 
 // 外部ライブラリ
 // ログ出力
 use tracing::info;
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
   // ログ出力の設定
   // 環境変数 RUST_LOG からログレベルを読み込み、無ければデフォルトで「info」にする
   // ファイル出力とかをすぐ増やせて拡張性ましまし、最近流行の定義方法らしい
@@ -30,8 +32,61 @@ fn main() {
   println!("Hello, world!");
   shared::debug();
   infra_config::debug();
+  monitor::debug();
 
   // 設定読み込み
-  let config = infra_config::load_config();
-  info!("{:#?}", config);
+  let config = infra_config::load_config()?;
+  // info!("{:#?}", config);
+
+  // スクレイピング部分実行のテスト
+  let output = match infra::scraper::run_scraper(&config.scraper) {
+    Ok(o) => o,
+    Err(e) => {
+      info!("{:#?}", e);
+      return Ok(());
+    }
+  };
+
+  // stateデータ取得のテスト
+  let state = infra::storage::load_state(&config.data.dir_path.as_path());
+  info!("{:#?}", state);
+
+  let state = state?;
+
+  let state = match state {
+    Some(s) => s,
+    None => {
+      println!("値なし");
+      return Ok(());
+    }
+  };
+
+  // 差分検出のデバッグ
+  let item = monitor::detect_new_item(&output, &state)?;
+
+  // stateデータ入力テスト
+  infra::storage::save_state(&config.data.dir_path.as_path(), &state)?;
+
+  // detect_historyデータ入力テスト
+  infra::storage::append_detect_history(
+    &config.data.dir_path.as_path(),
+    &shared::DetectHistory {
+      detected_at: chrono::Utc::now().into(),
+      updated: true,
+    },
+  )?;
+
+  // update_history
+  infra::storage::append_update_history(
+    &config.data.dir_path.as_path(),
+    &shared::UpdateHistory {
+      detected_at: chrono::Utc::now().into(),
+      ticker_symbol: "asdgf".to_string(),
+      ticker_name: "asdga".to_string(),
+      published_at: chrono::Utc::now().into(),
+      title: "gfds".to_string(),
+      url: "sdhd".to_string(),
+    },
+  )?;
+  Ok(())
 }
