@@ -50,6 +50,7 @@ version = "0.1.0"
 dependencies = [
  "infra_config",
  "kernel",
+ "shared",
  "tracing",
  "tracing-subscriber",
 ]
@@ -795,6 +796,7 @@ dependencies = [
  "config",
  "dotenvy",
  "serde",
+ "shared",
 ]
 
 [[package]]
