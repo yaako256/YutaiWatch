@@ -41,20 +41,4 @@ ID生成はmonitorの責務らしいので、そこで作る。
 ID生成はこのようにする。
 
 
-メモ。この方法を使ってIDを生成する。
-
-use sha2::{Digest, Sha256};
-
-pub fn generate_fingerprint(item: &ScrapedItem) -> String {
-    let source = format!(
-        "{}|{}|{}|{}",
-        normalize_url(&item.url),
-        normalize_datetime(&item.published_at),
-        item.ticker_symbol.trim(),
-        normalize_title(&item.title),
-    );
-
-    let hash = Sha256::digest(source.as_bytes());
-
-    format!("sha256:{:x}", hash)
-}
+monitorつくり中！
