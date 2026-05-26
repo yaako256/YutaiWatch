@@ -1,11 +1,7 @@
 // 標準ライブラリ
 use std::fs::File;
 
-use discord;
-use infra;
 use infra_config;
-use monitor;
-use shared::ScrapedItem;
 
 // 外部ライブラリ
 // ログ出力
@@ -29,71 +25,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")))
     .init();
 
-  // デバッグ用
-  println!("Hello, world!");
-  shared::debug();
-  infra_config::debug();
-  monitor::debug();
-  discord::debug();
-
   // 設定読み込み
   let config = infra_config::load_config()?;
   // info!("{:#?}", config);
 
-  // スクレイピング部分実行のテスト
-  let output = match infra::scraper::run_scraper(&config.scraper) {
-    Ok(o) => o,
-    Err(e) => {
-      info!("{:#?}", e);
-      return Ok(());
-    }
-  };
+  infra_config::debug();
 
-  // stateデータ取得のテスト
-  let state = infra::storage::load_state(&config.data.dir_path.as_path());
-  info!("{:#?}", state);
+  // monitor関数実行
+  kernel::run_monitor(&config)?;
 
-  let state = state?;
-
-  let state = match state {
-    Some(s) => s,
-    None => {
-      println!("値なし");
-      return Ok(());
-    }
-  };
-
-  // 差分検出のデバッグ
-  let new_data: Vec<(String, ScrapedItem)> = monitor::detect_new_item(&output, &state)?;
-
-  // ScrapedItemだけ取り出す
-  let items: Vec<ScrapedItem> = new_data.into_iter().map(|(_, item)| item).collect();
-
-  discord::send_notify(config.discord.notify_webhook, items)?;
-
-  // stateデータ入力テスト
-  infra::storage::save_state(&config.data.dir_path.as_path(), &state)?;
-
-  // detect_historyデータ入力テスト
-  infra::storage::append_detect_history(
-    &config.data.dir_path.as_path(),
-    &shared::DetectHistory {
-      detected_at: chrono::Utc::now().into(),
-      updated: true,
-    },
-  )?;
-
-  // update_history
-  infra::storage::append_update_history(
-    &config.data.dir_path.as_path(),
-    &shared::UpdateHistory {
-      detected_at: chrono::Utc::now().into(),
-      ticker_symbol: "asdgf".to_string(),
-      ticker_name: "asdga".to_string(),
-      published_at: chrono::Utc::now().into(),
-      title: "gfds".to_string(),
-      url: "sdhd".to_string(),
-    },
-  )?;
   Ok(())
 }
