@@ -19,7 +19,6 @@ pub fn detect_new_item(output: &ScraperOutput, state: &State) -> AppResult<Vec<S
   // デバッグ用に直値で返す
   Ok(
     (vec![ScrapedItem {
-      item_key: "20260525_002".to_string(),
       ticker_symbol: "5678".to_string(),
       ticker_name: "テストホールディングス".to_string(),
       published_at: "2026-05-25T10:30:00+09:00".to_string(),
@@ -34,7 +33,7 @@ pub fn generate_fingerprint(item: &ScrapedItem) -> String {
   // 内容をつなげたベース文字列を作成
   let source = format!(
     "{}|{}|{}|{}",
-    &item.url, &item.published_at, &item.ticker_symbol.trim, &item.title,
+    &item.url, &item.published_at, &item.ticker_symbol, &item.title,
   );
   // Hash化
   let hash = Sha256::digest(source.as_bytes());
