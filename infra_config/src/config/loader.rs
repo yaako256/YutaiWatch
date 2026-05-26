@@ -11,7 +11,7 @@ use crate::config::models::AppConfig;
 use shared::errors::{AppError, AppResult};
 
 pub fn load_config() -> AppResult<AppConfig> {
-  // dotenv（開発用）
+  // dotenv
   dotenvy::from_path(".config/.env").ok();
 
   // 設定ファイルをロードする
@@ -25,17 +25,11 @@ pub fn load_config() -> AppResult<AppConfig> {
         .try_parsing(true)
         .list_separator(","),
     )
-    .build();
-
-  // ロードできたか
-  let settings = match settings {
-    Ok(s) => s,
-    Err(e) => return Err(AppError::Config(format!("{}", e))),
-  };
+    .build()
+    .map_err(|e| AppError::Config(e.to_string()))?;
 
   // AppConfigにデシリアライズ
-  match settings.try_deserialize::<AppConfig>() {
-    Ok(config) => return Ok(config),
-    Err(e) => return Err(AppError::Config(format!("{}", e))),
-  };
+  settings
+    .try_deserialize::<AppConfig>()
+    .map_err(|e| AppError::Config(e.to_string()))
 }
