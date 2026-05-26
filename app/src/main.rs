@@ -3,6 +3,7 @@ use std::fs::File;
 
 use infra;
 use infra_config;
+use monitor;
 use shared::{self, errors::AppError};
 
 // 外部ライブラリ
@@ -31,15 +32,61 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
   println!("Hello, world!");
   shared::debug();
   infra_config::debug();
+  monitor::debug();
 
   // 設定読み込み
   let config = infra_config::load_config()?;
   // info!("{:#?}", config);
 
   // スクレイピング部分実行のテスト
-  if let Err(e) = infra::scraper::run_scraper(&config.scraper) {
-    info!("{:#?}", e)
+  let output = match infra::scraper::run_scraper(&config.scraper) {
+    Ok(o) => o,
+    Err(e) => {
+      info!("{:#?}", e);
+      return Ok(());
+    }
   };
 
+  // stateデータ取得のテスト
+  let state = infra::storage::load_state(&config.data.dir_path.as_path());
+  info!("{:#?}", state);
+
+  let state = state?;
+
+  let state = match state {
+    Some(s) => s,
+    None => {
+      println!("値なし");
+      return Ok(());
+    }
+  };
+
+  // 差分検出のデバッグ
+  let item = monitor::detect_new_item(&output, &state)?;
+
+  // stateデータ入力テスト
+  infra::storage::save_state(&config.data.dir_path.as_path(), &state)?;
+
+  // detect_historyデータ入力テスト
+  infra::storage::append_detect_history(
+    &config.data.dir_path.as_path(),
+    &shared::DetectHistory {
+      detected_at: chrono::Utc::now().into(),
+      updated: true,
+    },
+  )?;
+
+  // update_history
+  infra::storage::append_update_history(
+    &config.data.dir_path.as_path(),
+    &shared::UpdateHistory {
+      detected_at: chrono::Utc::now().into(),
+      ticker_symbol: "asdgf".to_string(),
+      ticker_name: "asdga".to_string(),
+      published_at: chrono::Utc::now().into(),
+      title: "gfds".to_string(),
+      url: "sdhd".to_string(),
+    },
+  )?;
   Ok(())
 }

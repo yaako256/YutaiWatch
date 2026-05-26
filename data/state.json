@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "last_success_at": "2026-05-25T14:32:10Z",
+  "last_snapshot_hash": "a3f5c8d91e7b4f2c9d8a1b6e4f7c2d9a",
+  "last_seen_item_key": "item_20260525_000123",
+  "notified_item_keys": [
+    "item_20260524_000001",
+    "item_20260524_000002",
+    "item_20260524_000003",
+    "item_20260524_000004",
+    "item_20260524_000005",
+    "item_20260525_000001",
+    "item_20260525_000002",
+    "item_20260525_000003",
+    "item_20260525_000004",
+    "item_20260525_000005"
+  ]
+}

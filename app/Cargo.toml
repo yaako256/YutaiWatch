@@ -8,8 +8,10 @@ edition = "2024"
 shared = { path = "../shared" }
 infra= { path = "../infra" }
 infra_config = { path = "../infra_config" }
+monitor = { path = "../monitor" }
 
 # 共通ライブラリ
 # anyhow = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
+chrono = { workspace = true }
