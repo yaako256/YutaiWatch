@@ -4,7 +4,6 @@ pythonを実行する部分
 */
 use std::process::Command;
 
-use serde::Deserialize;
 use tracing::info;
 
 use infra_config::ScraperConfig;

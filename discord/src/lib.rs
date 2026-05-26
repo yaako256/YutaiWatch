@@ -15,7 +15,7 @@ use shared::ScrapedItem;
 use shared::errors::AppResult;
 
 mod model;
-use model::{DiscordEmbed, EmbedField, EmbedFooter, WebhookPayload};
+use model::{DiscordEmbed, EmbedFooter, WebhookPayload};
 
 // デバッグ用関数
 pub fn debug() {
@@ -108,6 +108,8 @@ fn send_to_webhook(client: &Client, webhook_url: &str, embeds: Vec<DiscordEmbed>
 
 // エラー通知用（シンプルなtextメッセージ）
 // まだエラーを集計するコードを書いてないので実装していない。
+/*
 pub fn send_error(webhook_urls: Vec<&str>, message: &str) -> AppResult<()> {
   Ok(())
 }
+*/
