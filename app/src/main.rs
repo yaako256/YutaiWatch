@@ -5,7 +5,7 @@ use discord;
 use infra;
 use infra_config;
 use monitor;
-use shared::{self, ScrapedItem, errors::AppError};
+use shared::{ScrapedItem, errors::AppError};
 
 // 外部ライブラリ
 // ログ出力
