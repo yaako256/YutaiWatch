@@ -62,7 +62,7 @@ pub fn build_embed(item: &ScrapedItem) -> DiscordEmbed {
 }
 
 // 複数WebhookへEmbedを送信する
-pub fn send_notify(webhook_urls: Vec<&str>, items: Vec<ScrapedItem>) -> AppResult<()> {
+pub fn send_notify(webhook_urls: Vec<String>, items: Vec<ScrapedItem>) -> AppResult<()> {
   // 全アイテムをEmbed化
   let embeds: Vec<DiscordEmbed> = items.iter().map(|item| build_embed(item)).collect();
 
@@ -75,7 +75,7 @@ pub fn send_notify(webhook_urls: Vec<&str>, items: Vec<ScrapedItem>) -> AppResul
   // 各WebhookURLに送信
   let client = Client::new();
   for url in webhook_urls {
-    if let Err(e) = send_to_webhook(&client, url, embeds.clone()) {
+    if let Err(e) = send_to_webhook(&client, &url.as_str(), embeds.clone()) {
       error!("Webhook送信失敗 (url: {}): {}", url, e);
     }
   }

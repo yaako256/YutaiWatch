@@ -5,7 +5,7 @@ use discord;
 use infra;
 use infra_config;
 use monitor;
-use shared::{self, errors::AppError};
+use shared::{self, ScrapedItem, errors::AppError};
 
 // 外部ライブラリ
 // ログ出力
@@ -34,6 +34,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
   shared::debug();
   infra_config::debug();
   monitor::debug();
+  discord::debug();
 
   // 設定読み込み
   let config = infra_config::load_config()?;
@@ -63,7 +64,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
   };
 
   // 差分検出のデバッグ
-  let item = monitor::detect_new_item(&output, &state)?;
+  let new_data: Vec<(String, ScrapedItem)> = monitor::detect_new_item(&output, &state)?;
+
+  // ScrapedItemだけ取り出す
+  let items: Vec<ScrapedItem> = new_data.into_iter().map(|(_, item)| item).collect();
+
+  discord::send_notify(config.discord.notify_webhook, items)?;
 
   // stateデータ入力テスト
   infra::storage::save_state(&config.data.dir_path.as_path(), &state)?;
