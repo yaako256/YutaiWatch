@@ -5,14 +5,9 @@ edition = "2024"
 
 [dependencies]
 # 子クレートたち
-shared = { path = "../shared" }
-infra= { path = "../infra" }
+kernel = { path = "../kernel" }
 infra_config = { path = "../infra_config" }
-monitor = { path = "../monitor" }
-discord = { path = "../discord" }
 
 # 共通ライブラリ
-# anyhow = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-chrono = { workspace = true }

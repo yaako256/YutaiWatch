@@ -7,10 +7,10 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateHistory {
-  pub detected_at: DateTime<FixedOffset>, // 時間関連の奴に変える
+  pub detected_at: DateTime<FixedOffset>,
   pub ticker_symbol: String,
   pub ticker_name: String,
-  pub published_at: DateTime<FixedOffset>,
+  pub published_at: String,
   pub title: String,
   pub url: String,
 }

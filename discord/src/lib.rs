@@ -23,7 +23,7 @@ pub fn debug() {
 }
 
 // 複数WebhookへEmbedを送信する
-pub fn send_notify(webhook_urls: Vec<String>, items: Vec<ScrapedItem>) -> AppResult<()> {
+pub fn send_notify(webhook_urls: &Vec<String>, items: &Vec<ScrapedItem>) -> AppResult<()> {
   // 全アイテムをEmbed化
   let embeds: Vec<DiscordEmbed> = items.iter().map(|item| build_embed(item)).collect();
 

@@ -14,3 +14,6 @@
 {"detected_at":"2026-05-26T16:56:00.683788626Z","ticker_symbol":"asdgf","ticker_name":"asdga","published_at":"2026-05-26T16:56:00.683794009Z","title":"gfds","url":"sdhd"}
 {"detected_at":"2026-05-26T16:59:57.551222114Z","ticker_symbol":"asdgf","ticker_name":"asdga","published_at":"2026-05-26T16:59:57.551229404Z","title":"gfds","url":"sdhd"}
 {"detected_at":"2026-05-26T17:03:07.578986195Z","ticker_symbol":"asdgf","ticker_name":"asdga","published_at":"2026-05-26T17:03:07.578988789Z","title":"gfds","url":"sdhd"}
+{"detected_at":"2026-05-26T17:37:14.943671914Z","ticker_symbol":"asdgf","ticker_name":"asdga","published_at":"2026-05-26T17:37:14.943677779Z","title":"gfds","url":"sdhd"}
+{"detected_at":"2026-05-27T04:05:15.325363+09:00","ticker_symbol":"1234","ticker_name":"株式会社サンプル","published_at":"2026-05-25T09:00:00+09:00","title":"株主優待変更のお知らせ","url":"https://example.com/item1"}
+{"detected_at":"2026-05-27T04:05:15.325363+09:00","ticker_symbol":"5678","ticker_name":"テストホールディングス","published_at":"2026-05-25T10:30:00+09:00","title":"優待新設のお知らせ","url":"https://example.com/item2"}

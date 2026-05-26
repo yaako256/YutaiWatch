@@ -13,6 +13,3 @@ pub struct State {
   pub last_seen_item_key: String,
   pub notified_item_keys: Vec<String>,
 }
-
-// 保存時に上限を超えたら古い順に切り捨てる
-const NOTIFIED_KEYS_LIMIT: usize = 100;
