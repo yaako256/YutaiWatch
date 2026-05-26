@@ -2,9 +2,13 @@
 # PHONY: ファイルではないという指定(ファイルは更新されていないと実行されない): 命令である
 .PHONY: run dev prod deploy down logs devlogs devshell build reset
 
+# デフォルトコマンド（未指定時はhelpを表示）
+CMD ?= help
+
 # テスト実行
+# 使い方: make run CMD=monitor
 run:
-	cargo run -p app
+	cargo run -p app -- $(CMD)
 
 # 開発起動
 dev:
