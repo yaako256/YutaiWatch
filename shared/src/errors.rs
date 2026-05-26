@@ -6,6 +6,8 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum AppError {
+  #[error("コマンドエラー: {0}")]
+  InvalidCommand(String),
   #[error("設定エラー: {0}")]
   Config(String),
   #[error("スクレイプエラー: {0}")]
