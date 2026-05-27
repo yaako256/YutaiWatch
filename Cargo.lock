@@ -270,6 +270,7 @@ dependencies = [
 name = "discord"
 version = "0.1.0"
 dependencies = [
+ "logger",
  "reqwest",
  "serde",
  "serde_json",

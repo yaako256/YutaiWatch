@@ -9,6 +9,7 @@ use reqwest::blocking::Client;
 // use std::thread::sleep;
 // use std::time::Duration;
 
+use logger::{log_error, log_warn};
 use tracing::error;
 
 use shared::ScrapedItem;
@@ -30,13 +31,15 @@ pub fn send_notify(webhook_urls: &Vec<String>, items: &Vec<ScrapedItem>) -> AppR
   // ここに来てる時点でないと思うが
   // 空なら返す
   if embeds.is_empty() {
+    logger::log(log_warn!("discord", "embedsが空"));
     return Ok(());
   }
 
   // 各WebhookURLに送信
   let client = Client::new();
   for url in webhook_urls {
-    if let Err(e) = send_to_webhook(&client, &url.as_str(), embeds.clone()) {
+    if let Err(e) = send_to_webhook(&client, &url.as_str(), &embeds) {
+      logger::log(log_error!("discord", "Webhook送信失敗"));
       error!("Webhook送信失敗 (url: {}): {}", url, e);
     }
   }
@@ -74,7 +77,7 @@ fn build_embed(item: &ScrapedItem) -> DiscordEmbed {
 }
 
 // --- 単一Webhookへの送信（内部用）---
-fn send_to_webhook(client: &Client, webhook_url: &str, embeds: Vec<DiscordEmbed>) -> AppResult<()> {
+fn send_to_webhook(client: &Client, webhook_url: &str, embeds: &[DiscordEmbed]) -> AppResult<()> {
   const MAX_EMBEDS_PER_REQUEST: usize = 10;
 
   // embedの最大送信数で分けて送信
@@ -92,13 +95,17 @@ fn send_to_webhook(client: &Client, webhook_url: &str, embeds: Vec<DiscordEmbed>
         // 送信成功
       }
       Ok(response) => {
-        error!(
+        let msg = format!(
           "Discord Webhook 送信失敗: HTTPステータス {}",
           response.status()
         );
+        logger::log(log_error!("discord", msg));
+        error!("{}", msg);
       }
       Err(e) => {
-        error!("Discord Webhook 送信エラー: {}", e);
+        let msg = format!("Discord Webhook 送信エラー: {}", e);
+        logger::log(log_error!("discord", msg));
+        error!("{}", msg);
       }
     }
   }
