@@ -133,6 +133,11 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
   // state更新
   // ----------------------
   // stateに追加
+  // 最終更新時間を保存
+  state.last_update_at = output.fetched_at;
+  // 最後のitemを保存(上でscraped_itemsが空じゃないことは保証しているのでunwrap())
+  state.last_seen_item = scraped_items.first().cloned().unwrap();
+  // notified_item_keysを保存
   state.notified_item_keys.extend(fingerprints);
   // notified_item_keysが一定以上だったら古いものから消す
   if state.notified_item_keys.len() > NOTIFIED_KEYS_LIMIT {
