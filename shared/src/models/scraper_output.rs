@@ -23,3 +23,14 @@ pub struct ScrapedItem {
   pub title: String,
   pub url: String,
 }
+impl ScrapedItem {
+  pub fn new() -> Self {
+    Self {
+      ticker_symbol: String::new(),
+      ticker_name: String::new(),
+      published_at: String::new(),
+      title: String::new(),
+      url: String::new(),
+    }
+  }
+}
