@@ -15,7 +15,7 @@ dir_path = "./data/"
 [discord]
 # webhookは.envで上書きする!
 notify_webhook = ["WEBHOOK_URL1"]
-error_webhook = ["WEBHOOK_URL2"]
+logs_webhook = ["WEBHOOK_URL2"]
 
 
 
