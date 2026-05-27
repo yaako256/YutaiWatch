@@ -1,39 +1,27 @@
 """
-scraper/main.py
+scraper/元main.py
 
 playwright でページを取得し、株主優待ニュース一覧をパースして JSON を stdout に出力する。
 エラー発生時は stderr に出力して sys.exit(1) で終了する。
 
-【依存パッケージ】
-    pip install playwright beautifulsoup4 tf-playwright-stealth
-    playwright install chromium
+元mainはただ取得するだけとなっている。
+mainの方ではtf-playwright-stealthやリトライ処理、python側ジッターを追加する。
 """
 
 # ── 標準ライブラリ ────────────────────────────────────────────────
 import json
 import sys
-import time
-import random
 from datetime import datetime, timezone, timedelta
 
 # ── サードパーティ ────────────────────────────────────────────────
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
-from playwright_stealth import stealth_sync  # pip install tf-playwright-stealth
 
 # ── 定数 ─────────────────────────────────────────────────────────
-TARGET_URL    = "https://www.invest-jp.net/yuutai/news"
-TABLE_ID      = "table-news"
-JST           = timezone(timedelta(hours=9))
-PAGE_TIMEOUT  = 30_000  # ms
-
-# リトライ設定
-MAX_RETRY     = 3        # 最大試行回数
-RETRY_BASE_S  = 5        # リトライ待機の基準秒（attempt * RETRY_BASE_S 秒ずつ伸びる）
-
-# ページ取得後のジッター設定（人間らしい待機）
-JITTER_MIN_S  = 1.5      # 最小待機秒
-JITTER_MAX_S  = 3.5      # 最大待機秒
+TARGET_URL   = "https://www.invest-jp.net/yuutai/news"
+TABLE_ID     = "table-news"
+JST          = timezone(timedelta(hours=9))
+PAGE_TIMEOUT = 30_000  # ms
 
 
 # ── 例外 ─────────────────────────────────────────────────────────
@@ -45,11 +33,6 @@ class ScrapingError(Exception):
 def scrape(url: str) -> str:
     """
     Playwright でページを開き、HTML 文字列を返す。
-
-    stealth_sync() で webdriver フラグ等を隠蔽してから goto することで
-    Bot 検知スクリプトへの露出を最小化する。
-    ページ読み込み後にランダム待機を挟み、人間らしい挙動を演出する。
-
     ネットワーク障害・タイムアウト・テーブル未検出の場合は ScrapingError を送出する。
     """
     try:
@@ -57,67 +40,18 @@ def scrape(url: str) -> str:
             browser = pw.chromium.launch(headless=True)
             try:
                 page = browser.new_page()
-
-                # ── stealth 適用 ──────────────────────────────────
-                # navigator.webdriver フラグや chrome ランタイムの痕跡を隠蔽する。
-                # goto より前に呼ぶことで、ページ側 JS が実行される前に適用される。
-                stealth_sync(page)
-
                 page.goto(url, timeout=PAGE_TIMEOUT, wait_until="domcontentloaded")
-
-                # ── ジッター待機 ──────────────────────────────────
-                # goto 直後に即アクセスせず、人間らしいランダム待機を挟む。
-                # Rust 側のジッターと合わせることで、一定間隔のアクセスパターンを避ける。
-                jitter = random.uniform(JITTER_MIN_S, JITTER_MAX_S)
-                time.sleep(jitter)
-
                 # テーブルが DOM に現れるまで待機
                 page.wait_for_selector(f"#{TABLE_ID}", timeout=PAGE_TIMEOUT)
                 html = page.content()
             finally:
-                # 例外が発生しても必ずブラウザを閉じる（リソースリーク防止）
                 browser.close()
-
     except PlaywrightTimeoutError as e:
         raise ScrapingError(f"タイムアウト: {e}") from e
-    except ScrapingError:
-        raise  # 内側で送出した ScrapingError はそのまま伝播させる
     except Exception as e:
         raise ScrapingError(f"ページ取得に失敗しました: {e}") from e
 
     return html
-
-
-def scrape_with_retry(url: str) -> str:
-    """
-    scrape() をリトライ付きで呼び出す。
-
-    一時的なネットワーク障害や Cloudflare の瞬断に備えて最大 MAX_RETRY 回試行する。
-    待機時間は attempt * RETRY_BASE_S 秒と指数的に伸ばし、短時間の連続アクセスを避ける。
-    全試行が失敗した場合は最後の ScrapingError を再送出する。
-    """
-    last_error: ScrapingError | None = None
-
-    for attempt in range(1, MAX_RETRY + 1):
-        try:
-            return scrape(url)
-        except ScrapingError as e:
-            last_error = e
-            if attempt < MAX_RETRY:
-                wait_s = attempt * RETRY_BASE_S
-                print(
-                    f"[WARN] 試行 {attempt}/{MAX_RETRY} 失敗（{wait_s}秒後にリトライ）: {e}",
-                    file=sys.stderr,
-                )
-                time.sleep(wait_s)
-            else:
-                print(
-                    f"[WARN] 試行 {attempt}/{MAX_RETRY} 失敗（リトライ上限）: {e}",
-                    file=sys.stderr,
-                )
-
-    # ここに到達するのは全試行失敗時のみ（last_error は必ず ScrapingError）
-    raise last_error  # type: ignore[misc]
 
 
 # ── パース ────────────────────────────────────────────────────────
@@ -212,7 +146,7 @@ def build_output(rows: list[dict]) -> dict:
 # ── エントリポイント ──────────────────────────────────────────────
 def main() -> None:
     try:
-        html   = scrape_with_retry(TARGET_URL)
+        html   = scrape(TARGET_URL)
         rows   = parse_rows(html)
         output = build_output(rows)
     except ScrapingError as e:
