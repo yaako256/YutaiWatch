@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
 # Pythonライブラリ
 RUN pip3 install --break-system-packages \
     playwright \
+    tf-playwright-stealth \
     beautifulsoup4
 
 # Playwright + Chromium
