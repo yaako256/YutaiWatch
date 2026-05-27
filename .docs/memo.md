@@ -61,3 +61,7 @@ URLが擬似IDとして判断できるため、それを組み合わせながら
 - DiscordのフッタはString。送信日時の方を検出時間とすることにした。
 - initialize処理を仮実装した。関連して、state.jsonのパスとかをちゃんとさせた。
 - prune処理を仮実装した。
+- loggerを実装。finishでログを出力できるところまでやった
+
+次やること
+loggerをdiscordに送信する機能
