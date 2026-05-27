@@ -19,7 +19,7 @@ use model::{DiscordEmbed, EmbedFooter, WebhookPayload};
 
 // デバッグ用関数
 pub fn debug() {
-  println!("hello discord");
+  println!("hello discord!");
 }
 
 // 複数WebhookへEmbedを送信する
@@ -65,7 +65,7 @@ fn build_embed(item: &ScrapedItem) -> DiscordEmbed {
 
     // フッター
     footer: Some(EmbedFooter {
-      text: format!("検出日時：{}", item.published_at),
+      text: format!("公開日：{}", item.published_at),
     }),
 
     // Discord右上timestampは使わない
