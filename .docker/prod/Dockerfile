@@ -86,8 +86,13 @@ RUN ARCH=$(uname -m) && \
 #COPY --from=builder /app/target/release/yutai_watch /app/yutai_watch
 COPY --from=builder /app/target/release/app /app/yutai_watch
 
-# scraper
-COPY scraper ./scraper
+# 周辺ディレクトリのコピー
+COPY .config /app/.config
+COPY scraper /app/scraper
+COPY data /app/data
+
+# scraper → 上記でコピってる
+# COPY scraper ./scraper
 
 COPY .docker/prod/crontab /app/crontab
 COPY .docker/prod/entrypoint.sh /entrypoint.sh
