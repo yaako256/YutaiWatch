@@ -19,11 +19,6 @@ use shared::errors::AppResult;
 mod model;
 use model::{DiscordEmbed, EmbedFooter, WebhookPayload};
 
-// デバッグ用関数
-pub fn debug() {
-  println!("hello discord!");
-}
-
 // 複数WebhookへEmbedを送信する
 pub fn send_notify(webhook_urls: &[String], items: &Vec<ScrapedItem>) -> AppResult<()> {
   // 全アイテムをEmbed化
