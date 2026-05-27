@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 shared = { path = "../shared" }
+logger = { path = "../logger" }
 
 tracing = { workspace = true }
 sha2 = { workspace = true }

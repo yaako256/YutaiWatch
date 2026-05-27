@@ -1,6 +1,7 @@
 // HashID生成用
 use sha2::{Digest, Sha256};
 
+use logger::log_warn;
 use shared::State;
 use shared::errors::AppResult;
 use shared::{ScrapedItem, ScraperOutput};
@@ -26,6 +27,7 @@ pub fn detect_new_item(
   // itemが空の場合の処理
   if items.is_empty() {
     info!("取得したitemが空でした");
+    logger::log(log_warn!("detect_new_item", "ScraperOutput.itemsが空"));
     return Ok(vec![]);
   }
 

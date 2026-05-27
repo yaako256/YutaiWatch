@@ -784,6 +784,7 @@ name = "infra"
 version = "0.1.0"
 dependencies = [
  "infra_config",
+ "logger",
  "serde",
  "serde_json",
  "shared",
@@ -929,6 +930,7 @@ dependencies = [
 name = "monitor"
 version = "0.1.0"
 dependencies = [
+ "logger",
  "sha2",
  "shared",
  "tracing",
