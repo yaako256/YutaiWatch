@@ -8,16 +8,21 @@ FROM rust:1.88 AS builder
 
 WORKDIR /app
 
+# 依存キャッシュ最適化（重要）
 COPY Cargo.toml Cargo.lock ./
 
-RUN mkdir src && \
-    echo "fn main() {}" > src/main.rs
+# workspace構造をコピー（ここが本体）
+COPY app ./app
+COPY discord ./discord
+COPY infra ./infra
+COPY infra_config ./infra_config
+COPY kernel ./kernel
+COPY logger ./logger
+COPY monitor ./monitor
+COPY shared ./shared
 
-RUN cargo build --release
-
-COPY src ./src
-
-RUN cargo build --release
+# release build（ここを実行バイナリに合わせる）
+RUN cargo build --release -p app
 
 
 # =========================
@@ -78,7 +83,8 @@ RUN ARCH=$(uname -m) && \
 # =========================
 # Rust binary
 # =========================
-COPY --from=builder /app/target/release/yutai_watch /app/yutai_watch
+#COPY --from=builder /app/target/release/yutai_watch /app/yutai_watch
+COPY --from=builder /app/target/release/app /app/yutai_watch
 
 # scraper
 COPY scraper ./scraper
