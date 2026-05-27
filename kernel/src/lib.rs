@@ -1,14 +1,10 @@
 use std::fs;
 
 use infra_config::AppConfig;
-use logger;
+use logger::{self, log_error, log_info};
 use shared::constants::file::NOTIFIED_KEYS_LIMIT;
 use shared::errors::{AppError, AppResult};
 use shared::{ScrapedItem, ScraperOutput, State, UpdateHistory};
-
-// 外部ライブラリ
-// ログ出力
-use tracing::error;
 
 /// デバッグ用関数
 pub fn debug() {
@@ -27,14 +23,20 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
   if data_dir_path.exists() {
     match fs::remove_dir_all(data_dir_path) {
       Ok(_) => (),
-      Err(e) => return Err(AppError::Process(format!("dataフォルダの削除失敗: {}", e))),
+      Err(e) => {
+        logger::log(log_error!("initialize", "dataフォルダ削除失敗"));
+        return Err(AppError::Process(format!("dataフォルダの削除失敗: {}", e)));
+      }
     };
   }
-  logger::log("めっせーじ");
+
   // ディレクトリを再作成（中間ディレクトリも含めて作成）
   match fs::create_dir_all(data_dir_path) {
     Ok(_) => (),
-    Err(e) => return Err(AppError::Process(format!("dataフォルダの作成失敗: {}", e))),
+    Err(e) => {
+      logger::log(log_error!("initialize", "dataフォルダ作成失敗"));
+      return Err(AppError::Process(format!("dataフォルダの作成失敗: {}", e)));
+    }
   };
 
   // ----------------------
@@ -45,11 +47,13 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
   let output: ScraperOutput = match infra::scraper::run_scraper(&config.scraper) {
     Ok(o) => o,
     Err(e) => {
+      logger::log(log_error!("initialize", "スクレイピング失敗"));
+
       // 終了処理(未実装)
       // finish()
 
       // Err返し終了
-      return Err(AppError::Process(format!("{}", e)));
+      return Err(e);
     }
   };
 
@@ -67,7 +71,13 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
   // 更新差分判定(すべて新規)
   // ----------------------
   // Hash生成と取得したItemを認識
-  let new_data: Vec<(String, ScrapedItem)> = monitor::detect_new_item(&output, &state)?;
+  let new_data: Vec<(String, ScrapedItem)> = match monitor::detect_new_item(&output, &state) {
+    Ok(n) => n,
+    Err(e) => {
+      logger::log(log_error!("initialize", "差分判定(すべて新規)の失敗"));
+      return Err(e);
+    }
+  };
 
   // タプルベクトルの戻り値を各ベクトルに分解
   let (fingerprints, scraped_items): (Vec<String>, Vec<ScrapedItem>) = new_data.into_iter().unzip();
@@ -81,18 +91,24 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
     state.last_seen_item = item.clone();
   }
   // stateの書き込み
-  infra::storage::save_state(data_dir_path, &state)?;
+  if let Err(e) = infra::storage::save_state(data_dir_path, &state) {
+    logger::log(log_error!("initialize", "stateの書き込み失敗"));
+    return Err(e);
+  }
 
   // ----------------------
   // detect_history作成
   // ----------------------
-  infra::storage::append_detect_history(
+  if let Err(e) = infra::storage::append_detect_history(
     data_dir_path,
     &shared::DetectHistory {
       detected_at: output.fetched_at,
       updated: true,
     },
-  )?;
+  ) {
+    logger::log(log_error!("initialize", "detect_history作成失敗"));
+    return Err(e);
+  }
 
   // ----------------------
   // update_history作成
@@ -101,7 +117,7 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
   let mut update_history = UpdateHistory::new();
   // 時間だけ代入
   update_history.detected_at = output.fetched_at;
-  // 最新のやつだけupdate_historyに記入
+  // 最新のやつだけupdate_historyに記入する
   if let Some(item) = scraped_items.into_iter().last() {
     update_history.ticker_symbol = item.ticker_symbol;
     update_history.ticker_name = item.ticker_name;
@@ -109,11 +125,14 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
     update_history.title = item.title;
     update_history.url = item.url;
   }
-  // update_historyに記入
-  infra::storage::append_update_history(data_dir_path, &update_history)?;
+  // update_history作成
+  if let Err(e) = infra::storage::append_update_history(data_dir_path, &update_history) {
+    logger::log(log_error!("initialize", "update_history作成失敗"));
+    return Err(e);
+  }
 
-  // initしたことをdiscordに送信(未実装)
-  // discord::send_notify(&config.discord.notify_webhook, &scraped_items)?;
+  // initしたことをdiscordに送信
+  logger::log(log_info!("init", "initialize処理を実行しました"));
 
   // 終了処理(未実装)
   // finish()
@@ -138,11 +157,14 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
   let state: Option<State> = match state {
     Ok(s) => s,
     Err(e) => {
-      // デバッグログ
-      error!("Stateの取得に失敗。initフローの実行をします:{}", e);
+      logger::log(log_error!("monitor", "Stateの取得に失敗"));
+      logger::log(log_info!("monitor", "initialize処理を実行"));
 
       // 初回フローの実行
-      run_initialize(config)?;
+      if let Err(e) = run_initialize(config) {
+        logger::log(log_error!("monitor", "initialize処理失敗"));
+        return Err(e);
+      }
 
       // Err返し終了
       return Err(AppError::Process(format!(
@@ -157,11 +179,14 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
   let mut state: State = match state {
     Some(s) => s,
     None => {
-      // デバッグログ
-      //error!("Stateに値なし。initフローの実行をしましす:{}", e);
+      logger::log(log_error!("monitor", "Stateに値が存在しません"));
+      logger::log(log_info!("monitor", "initialize処理を実行"));
 
       // 初回フローの実行
-      run_initialize(config)?;
+      if let Err(e) = run_initialize(config) {
+        logger::log(log_error!("monitor", "initialize処理失敗"));
+        return Err(e);
+      }
 
       // Err返し終了
       return Err(AppError::Process(
@@ -178,6 +203,8 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
   let output: ScraperOutput = match infra::scraper::run_scraper(&config.scraper) {
     Ok(o) => o,
     Err(e) => {
+      logger::log(log_error!("monitor", "スクレイピング失敗"));
+
       // 終了処理(未実装)
       // finish()
 
@@ -191,18 +218,27 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
   // 更新なし → 終了処理
   // 更新あり → 処理実行
   // ----------------------
-  let new_data: Vec<(String, ScrapedItem)> = monitor::detect_new_item(&output, &state)?;
+  let new_data: Vec<(String, ScrapedItem)> = match monitor::detect_new_item(&output, &state) {
+    Ok(d) => d,
+    Err(e) => {
+      logger::log(log_error!("monitor", "差分判定失敗"));
+      return Err(e);
+    }
+  };
 
   // 空だったらdetect_history更新だけして実行終了
   if new_data.is_empty() {
     // detect_historyの更新
-    infra::storage::append_detect_history(
+    if let Err(e) = infra::storage::append_detect_history(
       config.data.dir_path.as_path(),
       &shared::DetectHistory {
         detected_at: output.fetched_at,
         updated: false,
       },
-    )?;
+    ) {
+      logger::log(log_error!("monitor", "detect_historyの更新失敗"));
+      return Err(e);
+    }
 
     // 終了処理(未実装)
     // finish()
@@ -218,7 +254,10 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
   // 更新内容を通知
   // ----------------------
   // discordに送信
-  discord::send_notify(&config.discord.notify_webhook, &scraped_items)?;
+  if let Err(e) = discord::send_notify(&config.discord.notify_webhook, &scraped_items) {
+    logger::log(log_error!("monitor", "discordに送信失敗"));
+    return Err(e);
+  }
 
   // ----------------------
   // state更新
@@ -233,24 +272,30 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
     state.notified_item_keys.drain(0..overflow);
   }
   // state.jsonを更新
-  infra::storage::save_state(config.data.dir_path.as_path(), &state)?;
+  if let Err(e) = infra::storage::save_state(config.data.dir_path.as_path(), &state) {
+    logger::log(log_error!("monitor", "state.json更新失敗"));
+    return Err(e);
+  }
 
   // ----------------------
   // detect_history更新
   // ----------------------
-  infra::storage::append_detect_history(
+  if let Err(e) = infra::storage::append_detect_history(
     config.data.dir_path.as_path(),
     &shared::DetectHistory {
       detected_at: output.fetched_at,
       updated: true,
     },
-  )?;
+  ) {
+    logger::log(log_error!("monitor", "detect_history.json更新失敗"));
+    return Err(e);
+  }
 
   // ----------------------
   // update_history更新
   // ----------------------
   for item in scraped_items {
-    infra::storage::append_update_history(
+    if let Err(e) = infra::storage::append_update_history(
       config.data.dir_path.as_path(),
       &shared::UpdateHistory {
         detected_at: output.fetched_at,
@@ -260,7 +305,10 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
         title: item.title,
         url: item.url,
       },
-    )?;
+    ) {
+      logger::log(log_error!("monitor", "update_history更新失敗"));
+      return Err(e);
+    }
   }
 
   // 終了処理(未実装)
@@ -272,11 +320,21 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
 /// prune実行関数
 pub fn run_prune(config: &AppConfig) -> AppResult<()> {
   // detect_history.jsonlの調整
-  infra::storage::prune_detect_history(config.data.dir_path.as_path())?;
+  if let Err(e) = infra::storage::prune_detect_history(config.data.dir_path.as_path()) {
+    logger::log(log_error!("prune", "detect_historyの圧縮失敗"));
+    return Err(e);
+  }
   // update_history.jsonlの調整
-  infra::storage::prune_update_history(config.data.dir_path.as_path())?;
+  if let Err(e) = infra::storage::prune_update_history(config.data.dir_path.as_path()) {
+    logger::log(log_error!("prune", "update_historyの圧縮失敗"));
+    return Err(e);
+  }
 
-  // 調整したことをdiscordに送信(未実装)
+  // 調整したことをdiscordに送信
+  logger::log(log_info!("prune", "prune処理を実行しました。"));
+
+  // 終了処理(未実装)
+  // finish()
 
   Ok(())
 }

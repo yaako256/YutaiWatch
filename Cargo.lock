@@ -839,15 +839,12 @@ dependencies = [
 name = "kernel"
 version = "0.1.0"
 dependencies = [
- "chrono",
  "discord",
  "infra",
  "infra_config",
  "logger",
  "monitor",
  "shared",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]

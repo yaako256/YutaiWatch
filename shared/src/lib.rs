@@ -1,6 +1,5 @@
 pub mod constants;
 pub mod errors;
-pub mod logger;
 mod models;
 
 // モデルは階層を浅くしようかな
