@@ -57,7 +57,7 @@ pub fn load_state(data_dir: &Path) -> AppResult<Option<State>> {
 
 // state.json の書き込み
 pub fn save_state(data_dir: &Path, state: &State) -> AppResult<()> {
-  let state_path = data_dir.join("debug_state.json");
+  let state_path = data_dir.join(constants::file::STATE_FILE_NAME);
 
   // pretty json 化
   let json_text = serde_json::to_string_pretty(state)
@@ -97,11 +97,11 @@ fn append_jsonl<T: serde::Serialize>(path: &Path, entry: &T, label: &str) -> App
 // detect_history.jsonl への追記
 pub fn append_detect_history(data_dir: &Path, entry: &DetectHistory) -> AppResult<()> {
   let path = data_dir.join(constants::file::DETECT_HISTORY_FILE_NAME);
-  append_jsonl(&path, entry, "detect_history.jsonl")
+  append_jsonl(&path, entry, constants::file::DETECT_HISTORY_FILE_NAME)
 }
 
 // update_history.jsonl への追記
 pub fn append_update_history(data_dir: &Path, entry: &UpdateHistory) -> AppResult<()> {
   let path = data_dir.join(constants::file::UPDATE_HISTORY_FILE_NAME);
-  append_jsonl(&path, entry, "update_history.jsonl")
+  append_jsonl(&path, entry, constants::file::UPDATE_HISTORY_FILE_NAME)
 }
