@@ -2,7 +2,7 @@
 shared/src/models/update_history.rs
 update_history.jsonlに保存するデータの構造体定義
 */
-use chrono::{DateTime, FixedOffset};
+use chrono::{DateTime, FixedOffset, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -17,7 +17,7 @@ pub struct UpdateHistory {
 impl UpdateHistory {
   pub fn new() -> Self {
     Self {
-      detected_at: DateTime::new(),
+      detected_at: Utc::now().fixed_offset(),
       ticker_symbol: String::new(),
       ticker_name: String::new(),
       published_at: String::new(),
