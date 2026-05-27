@@ -267,3 +267,15 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
 
   Ok(())
 }
+
+/// prune実行関数
+pub fn run_prune(config: &AppConfig) -> AppResult<()> {
+  // detect_history.jsonlの調整
+  infra::storage::prune_detect_history(config.data.dir_path.as_path())?;
+  // update_history.jsonlの調整
+  infra::storage::prune_update_history(config.data.dir_path.as_path())?;
+
+  // 調整したことをdiscordに送信(未実装)
+
+  Ok(())
+}
