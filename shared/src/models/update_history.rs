@@ -14,3 +14,15 @@ pub struct UpdateHistory {
   pub title: String,
   pub url: String,
 }
+impl UpdateHistory {
+  pub fn new() -> Self {
+    Self {
+      detected_at: DateTime::new(),
+      ticker_symbol: String::new(),
+      ticker_name: String::new(),
+      published_at: String::new(),
+      title: String::new(),
+      url: String::new(),
+    }
+  }
+}
