@@ -17,3 +17,7 @@ discord = { path = "../discord" }
 tracing = { workspace = true }
 # tracing-subscriber = { workspace = true }
 # chrono = { workspace = true }
+
+# 固有ライブラリ
+# ジッター用
+rand = "0.8"

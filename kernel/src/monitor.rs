@@ -7,12 +7,15 @@ use infra_config::AppConfig;
 use logger::{self, log_error, log_info};
 use shared::{
   ScrapedItem, ScraperOutput, State, UpdateHistory,
-  constants::file::NOTIFIED_KEYS_LIMIT,
+  constants::{
+    file::NOTIFIED_KEYS_LIMIT,
+    jitter::{JITTER_MAX_SECOND, JITTER_MIN_SECOND},
+  },
   errors::{AppError, AppResult},
 };
 
 // 自クレート
-use super::common::finish;
+use super::common::{finish, jitter_sleep};
 use super::initialize::run_initialize;
 
 /// monitor実行関数
@@ -64,6 +67,12 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
       ));
     }
   };
+
+  // ----------------------
+  // ジッター機能
+  // 0分～2分でジッター
+  // ----------------------
+  jitter_sleep(JITTER_MIN_SECOND, JITTER_MAX_SECOND);
 
   // ----------------------
   // 監視対象サイトをスクレイピング
