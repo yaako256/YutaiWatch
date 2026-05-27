@@ -3,8 +3,8 @@ infra/src/storage.rs
 storageのIOを定義
 */
 use std::{
-  fs::{self, OpenOptions},
-  io::{BufWriter, Write},
+  fs::{self, File, OpenOptions},
+  io::{BufRead, BufReader, BufWriter, Write},
   path::Path,
 };
 
@@ -70,6 +70,9 @@ pub fn save_state(data_dir: &Path, state: &State) -> AppResult<()> {
   Ok(())
 }
 
+// -------------------------
+// jsonlの追記関連
+// -------------------------
 // jsonl追記の共通関数
 fn append_jsonl<T: serde::Serialize>(path: &Path, entry: &T, label: &str) -> AppResult<()> {
   // ファイルを開く
@@ -104,4 +107,84 @@ pub fn append_detect_history(data_dir: &Path, entry: &DetectHistory) -> AppResul
 pub fn append_update_history(data_dir: &Path, entry: &UpdateHistory) -> AppResult<()> {
   let path = data_dir.join(constants::file::UPDATE_HISTORY_FILE_NAME);
   append_jsonl(&path, entry, constants::file::UPDATE_HISTORY_FILE_NAME)
+}
+
+// -------------------------
+// jsonlのデータ整理関連
+// -------------------------
+// jsonl のエントリ数を上限に揃える共通関数
+fn prune_jsonl(path: &Path, limit: usize, label: &str) -> AppResult<()> {
+  // ファイルが存在しない場合はスキップ
+  if !path.exists() {
+    // fileが存在しなかったことをlogに入れる(未実装)
+    return Ok(());
+  }
+
+  // 全行を読み込む
+  let file =
+    File::open(path).map_err(|e| storage_error(path, &format!("{label} のオープン"), e))?;
+  let reader = BufReader::new(file);
+  let lines: Vec<String> = reader
+    .lines()
+    .collect::<Result<_, _>>()
+    .map_err(|e| storage_error(path, &format!("{label} の読み込み"), e))?;
+
+  let total = lines.len();
+
+  // 上限以下なら何もしない
+  if total <= limit {
+    // 何もしなかったことをlogに入れる(未実装)
+    return Ok(());
+  }
+
+  // 古い方（先頭）を捨て、新しい方（末尾）を残す
+  let pruned_count = total - limit;
+  let kept_lines = &lines[pruned_count..];
+
+  // 一時ファイルに書き出してからリネーム（書き込み中のクラッシュ対策）
+  let tmp_path = path.with_extension("tmp");
+  {
+    let tmp_file = OpenOptions::new()
+      .create(true)
+      .write(true)
+      .truncate(true)
+      .open(&tmp_path)
+      .map_err(|e| storage_error(&tmp_path, &format!("{label} の一時ファイルオープン"), e))?;
+    let mut writer = BufWriter::new(tmp_file);
+    for line in kept_lines {
+      writer
+        .write_all(line.as_bytes())
+        .map_err(|e| storage_error(&tmp_path, &format!("{label} の書き込み"), e))?;
+      writer
+        .write_all(b"\n")
+        .map_err(|e| storage_error(&tmp_path, &format!("{label} の書き込み"), e))?;
+    }
+  }
+
+  fs::rename(&tmp_path, path)
+    .map_err(|e| storage_error(path, &format!("{label} のリネーム"), e))?;
+
+  // どのくらい改変したかをlogに残す(未実装)
+
+  Ok(())
+}
+
+// detect_history.jsonl の刈り込み
+pub fn prune_detect_history(data_dir: &Path) -> AppResult<()> {
+  let path = data_dir.join(constants::file::DETECT_HISTORY_FILE_NAME);
+  prune_jsonl(
+    &path,
+    constants::file::DETECT_HISTORY_LIMIT,
+    constants::file::DETECT_HISTORY_FILE_NAME,
+  )
+}
+
+// update_history.jsonl の刈り込み
+pub fn prune_update_history(data_dir: &Path) -> AppResult<()> {
+  let path = data_dir.join(constants::file::UPDATE_HISTORY_FILE_NAME);
+  prune_jsonl(
+    &path,
+    constants::file::UPDATE_HISTORY_LIMIT,
+    constants::file::UPDATE_HISTORY_FILE_NAME,
+  )
 }

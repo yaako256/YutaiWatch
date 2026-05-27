@@ -56,6 +56,7 @@ fn main() -> AppResult<()> {
   match command_args.as_slice() {
     ["initialize"] => kernel::run_initialize(&config),
     ["monitor"] => kernel::run_monitor(&config),
+    ["prune"] => kernel::run_prune(&config),
     [] => Err(AppError::InvalidCommand(
       "コマンドを指定してください".into(),
     )),
