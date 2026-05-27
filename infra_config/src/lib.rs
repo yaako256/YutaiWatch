@@ -9,8 +9,3 @@ infra_configは、
 mod config;
 
 pub use config::*;
-
-// デバッグ用関数
-pub fn debug() {
-  println!("hello infra_config");
-}

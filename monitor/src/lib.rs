@@ -7,11 +7,6 @@ use shared::errors::AppResult;
 use shared::{ScrapedItem, ScraperOutput};
 use tracing::info;
 
-// デバッグ用関数
-pub fn debug() {
-  println!("Hello from shared!");
-}
-
 /// 差分判定の本体
 /// stateと照合し、未通知のitemだけを返す
 pub fn detect_new_item(

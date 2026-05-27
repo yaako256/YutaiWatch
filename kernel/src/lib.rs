@@ -8,11 +8,6 @@ use shared::{ScrapedItem, ScraperOutput, State, UpdateHistory};
 
 use tracing::{error, info};
 
-/// デバッグ用関数
-pub fn debug() {
-  println!("Hello from kernel!");
-}
-
 /// initialize実行関数
 pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
   // init処理開始をdiscordに送信
@@ -147,11 +142,6 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
 
 /// monitor実行関数
 pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
-  // デバッグ用
-  shared::debug();
-  monitor::debug();
-  discord::debug();
-
   // ----------------------
   // stateデータ取得(なければ初回フローの実行)
   // ----------------------
