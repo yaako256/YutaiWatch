@@ -8,30 +8,24 @@ use std::{
   path::Path,
 };
 
+use logger::{log_error, log_info, log_warn};
 use shared::constants;
 use shared::errors::{AppError, AppResult};
 use shared::{DetectHistory, State, UpdateHistory};
 
 // エラー用
 fn storage_error(path: &Path, action: &str, e: std::io::Error) -> AppError {
-  AppError::Storage(std::io::Error::new(
-    e.kind(),
-    format!(
-      "{action}に失敗しました: path={}, error={}",
-      path.display(),
-      e
-    ),
-  ))
+  let msg = format!("{action}に失敗しました: path={}, error={e}", path.display());
+  logger::log(log_error!("storage", msg));
+  AppError::Storage(std::io::Error::new(e.kind(), msg))
 }
 // パースエラー用
 fn parse_error(path: &Path, action: &str, e: impl std::fmt::Display) -> AppError {
+  let msg = format!("{action}に失敗しました: path={}, error={e}", path.display());
+  logger::log(log_error!("storage", msg));
   AppError::Parse(serde_json::Error::io(std::io::Error::new(
     std::io::ErrorKind::InvalidData,
-    format!(
-      "{action}に失敗しました: path={}, error={}",
-      path.display(),
-      e
-    ),
+    msg,
   )))
 }
 
@@ -116,7 +110,10 @@ pub fn append_update_history(data_dir: &Path, entry: &UpdateHistory) -> AppResul
 fn prune_jsonl(path: &Path, limit: usize, label: &str) -> AppResult<()> {
   // ファイルが存在しない場合はスキップ
   if !path.exists() {
-    // fileが存在しなかったことをlogに入れる(未実装)
+    // fileが存在しなかったことをlogに入れる
+    let msg = format!("fileが存在しません label:{}", label);
+    logger::log(log_warn!("prune_jsonl", msg));
+
     return Ok(());
   }
 
@@ -133,7 +130,10 @@ fn prune_jsonl(path: &Path, limit: usize, label: &str) -> AppResult<()> {
 
   // 上限以下なら何もしない
   if total <= limit {
-    // 何もしなかったことをlogに入れる(未実装)
+    // 何もしなかったことをlogに入れる
+    let msg = format!("prune処理不要 label:{} total:{}", label, total);
+    logger::log(log_info!("prune_jsonl", msg));
+
     return Ok(());
   }
 
@@ -164,7 +164,12 @@ fn prune_jsonl(path: &Path, limit: usize, label: &str) -> AppResult<()> {
   fs::rename(&tmp_path, path)
     .map_err(|e| storage_error(path, &format!("{label} のリネーム"), e))?;
 
-  // どのくらい改変したかをlogに残す(未実装)
+  // どのくらい改変したかをlogに残す
+  let msg = format!(
+    "prune処理実行 label:{} pruned_count:{} ",
+    label, pruned_count
+  );
+  logger::log(log_info!("prune_jsonl", msg));
 
   Ok(())
 }
