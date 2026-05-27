@@ -13,6 +13,9 @@ pub fn debug() {
 
 /// initialize実行関数
 pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
+  // init処理開始をdiscordに送信
+  logger::log(log_info!("prune", "initialize処理実行開始"));
+
   // パスを持っておく
   let data_dir_path = config.data.dir_path.as_path();
 
@@ -49,8 +52,8 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
     Err(e) => {
       logger::log(log_error!("initialize", "スクレイピング失敗"));
 
-      // 終了処理(未実装)
-      // finish()
+      // 終了処理
+      finish()?;
 
       // Err返し終了
       return Err(e);
@@ -132,10 +135,10 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
   }
 
   // initしたことをdiscordに送信
-  logger::log(log_info!("init", "initialize処理を実行しました"));
+  logger::log(log_info!("prune", "initialize処理実行完了"));
 
-  // 終了処理(未実装)
-  // finish()
+  // 終了処理
+  finish()?;
 
   Ok(())
 }
@@ -205,8 +208,8 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
     Err(e) => {
       logger::log(log_error!("monitor", "スクレイピング失敗"));
 
-      // 終了処理(未実装)
-      // finish()
+      // 終了処理
+      finish()?;
 
       // Err返し終了
       return Err(AppError::Process(format!("{}", e)));
@@ -240,8 +243,8 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
       return Err(e);
     }
 
-    // 終了処理(未実装)
-    // finish()
+    // 終了処理
+    finish()?;
 
     // Okを返し終了
     return Ok(());
@@ -311,14 +314,17 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
     }
   }
 
-  // 終了処理(未実装)
-  // finish()
+  // 終了処理
+  finish()?;
 
   Ok(())
 }
 
 /// prune実行関数
 pub fn run_prune(config: &AppConfig) -> AppResult<()> {
+  // 調整することをdiscordに送信
+  logger::log(log_info!("prune", "prune処理実行開始"));
+
   // detect_history.jsonlの調整
   if let Err(e) = infra::storage::prune_detect_history(config.data.dir_path.as_path()) {
     logger::log(log_error!("prune", "detect_historyの圧縮失敗"));
@@ -331,10 +337,18 @@ pub fn run_prune(config: &AppConfig) -> AppResult<()> {
   }
 
   // 調整したことをdiscordに送信
-  logger::log(log_info!("prune", "prune処理を実行しました。"));
+  logger::log(log_info!("prune", "prune処理実行完了"));
 
-  // 終了処理(未実装)
-  // finish()
+  // 終了処理
+  finish()?;
+
+  Ok(())
+}
+
+/// 終了時に実行する処理(未実装)
+fn finish() -> AppResult<()> {
+  // デバッグ用にloggerの中身をprint
+  logger::print();
 
   Ok(())
 }

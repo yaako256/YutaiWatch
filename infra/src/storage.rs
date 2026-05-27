@@ -131,7 +131,7 @@ fn prune_jsonl(path: &Path, limit: usize, label: &str) -> AppResult<()> {
   // 上限以下なら何もしない
   if total <= limit {
     // 何もしなかったことをlogに入れる
-    let msg = format!("prune処理意味なし label:{}", label);
+    let msg = format!("prune処理不要 label:{} total:{}", label, total);
     logger::log(log_info!("prune_jsonl", msg));
 
     return Ok(());
@@ -166,8 +166,8 @@ fn prune_jsonl(path: &Path, limit: usize, label: &str) -> AppResult<()> {
 
   // どのくらい改変したかをlogに残す
   let msg = format!(
-    "prune処理実行 pruned_count:{} label:{}",
-    pruned_count, label
+    "prune処理実行 label:{} pruned_count:{} ",
+    label, pruned_count
   );
   logger::log(log_info!("prune_jsonl", msg));
 
