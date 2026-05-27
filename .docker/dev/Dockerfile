@@ -1,4 +1,4 @@
-# docker/dev/Dockerfile
+# .docker/dev/Dockerfile
 # 開発用DockerFile
 
 FROM rust:1.88

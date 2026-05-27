@@ -1,3 +1,6 @@
+# .docker/prod/Dockerfile
+# 本番用DockerFile
+
 # =========================
 # Build Stage
 # =========================
@@ -80,8 +83,8 @@ COPY --from=builder /app/target/release/yutai_watch /app/yutai_watch
 # scraper
 COPY scraper ./scraper
 
-COPY docker/prod/crontab /app/crontab
-COPY docker/prod/entrypoint.sh /entrypoint.sh
+COPY .docker/prod/crontab /app/crontab
+COPY .docker/prod/entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 
