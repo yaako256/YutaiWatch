@@ -34,5 +34,5 @@ pub struct DataConfig {
 #[derive(Debug, Deserialize)]
 pub struct DiscordConfig {
   pub notify_webhook: Vec<String>,
-  pub error_webhook: Vec<String>,
+  pub logs_webhook: Vec<String>,
 }

@@ -13,6 +13,7 @@ use logger::{log_error, log_warn};
 use tracing::error;
 
 use shared::ScrapedItem;
+use shared::constants::discord;
 use shared::errors::AppResult;
 
 mod model;
@@ -24,7 +25,7 @@ pub fn debug() {
 }
 
 // 複数WebhookへEmbedを送信する
-pub fn send_notify(webhook_urls: &Vec<String>, items: &Vec<ScrapedItem>) -> AppResult<()> {
+pub fn send_notify(webhook_urls: &[String], items: &Vec<ScrapedItem>) -> AppResult<()> {
   // 全アイテムをEmbed化
   let embeds: Vec<DiscordEmbed> = items.iter().map(|item| build_embed(item)).collect();
 
@@ -78,10 +79,8 @@ fn build_embed(item: &ScrapedItem) -> DiscordEmbed {
 
 // --- 単一Webhookへの送信（内部用）---
 fn send_to_webhook(client: &Client, webhook_url: &str, embeds: &[DiscordEmbed]) -> AppResult<()> {
-  const MAX_EMBEDS_PER_REQUEST: usize = 10;
-
   // embedの最大送信数で分けて送信
-  for chunk in embeds.chunks(MAX_EMBEDS_PER_REQUEST) {
+  for chunk in embeds.chunks(discord::EMBED_COUNT_LIMIT) {
     let payload = WebhookPayload {
       content: None,
       embeds: chunk.to_vec(),
@@ -113,10 +112,58 @@ fn send_to_webhook(client: &Client, webhook_url: &str, embeds: &[DiscordEmbed]) 
   Ok(())
 }
 
-// エラー通知用（シンプルなtextメッセージ）
-// まだエラーを集計するコードを書いてないので実装していない。
-/*
-pub fn send_error(webhook_urls: Vec<&str>, message: &str) -> AppResult<()> {
+/// ----------------------------------
+/// ログ通知用（シンプルなtextメッセージ）
+/// ----------------------------------
+pub fn send_logs(webhook_urls: &[String]) -> AppResult<()> {
+  // Discordの文字制限でチャンクに分割
+  let chunks = logger::to_chunks(discord::CONTENT_LIMIT);
+
+  if chunks.is_empty() {
+    return Ok(());
+  }
+
+  let client = Client::new();
+  for url in webhook_urls {
+    for chunk in &chunks {
+      if let Err(e) = send_text_to_webhook(&client, url.as_str(), chunk) {
+        logger::log(log_error!("discord", "ログWebhook送信失敗"));
+        error!("ログWebhook送信失敗 (url: {}): {}", url, e);
+      }
+    }
+  }
+
   Ok(())
 }
-*/
+
+// --- 単一Webhookへのテキスト送信（ログ用）---
+fn send_text_to_webhook(client: &Client, webhook_url: &str, content: &str) -> AppResult<()> {
+  // コードブロックで囲んで見やすくする
+  let formatted = format!("```\n{}\n```", content);
+
+  let payload = WebhookPayload {
+    content: Some(formatted),
+    embeds: vec![],
+  };
+
+  let result = client.post(webhook_url).json(&payload).send();
+
+  match result {
+    Ok(response) if response.status().is_success() => Ok(()),
+    Ok(response) => {
+      let msg = format!(
+        "Discord Webhook ログ送信失敗: HTTPステータス {}",
+        response.status()
+      );
+      logger::log(log_error!("discord", msg));
+      error!("{}", msg);
+      Ok(())
+    }
+    Err(e) => {
+      let msg = format!("Discord Webhook ログ送信エラー: {}", e);
+      logger::log(log_error!("discord", msg));
+      error!("{}", msg);
+      Ok(())
+    }
+  }
+}

@@ -847,6 +847,7 @@ dependencies = [
  "logger",
  "monitor",
  "shared",
+ "tracing",
 ]
 
 [[package]]

@@ -6,6 +6,8 @@ use shared::constants::file::NOTIFIED_KEYS_LIMIT;
 use shared::errors::{AppError, AppResult};
 use shared::{ScrapedItem, ScraperOutput, State, UpdateHistory};
 
+use tracing::{error, info};
+
 /// デバッグ用関数
 pub fn debug() {
   println!("Hello from kernel!");
@@ -53,7 +55,7 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
       logger::log(log_error!("initialize", "スクレイピング失敗"));
 
       // 終了処理
-      finish()?;
+      finish(config)?;
 
       // Err返し終了
       return Err(e);
@@ -138,7 +140,7 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
   logger::log(log_info!("prune", "initialize処理実行完了"));
 
   // 終了処理
-  finish()?;
+  finish(config)?;
 
   Ok(())
 }
@@ -209,7 +211,7 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
       logger::log(log_error!("monitor", "スクレイピング失敗"));
 
       // 終了処理
-      finish()?;
+      finish(config)?;
 
       // Err返し終了
       return Err(AppError::Process(format!("{}", e)));
@@ -244,7 +246,7 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
     }
 
     // 終了処理
-    finish()?;
+    finish(config)?;
 
     // Okを返し終了
     return Ok(());
@@ -315,7 +317,7 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
   }
 
   // 終了処理
-  finish()?;
+  finish(config)?;
 
   Ok(())
 }
@@ -340,15 +342,20 @@ pub fn run_prune(config: &AppConfig) -> AppResult<()> {
   logger::log(log_info!("prune", "prune処理実行完了"));
 
   // 終了処理
-  finish()?;
+  finish(config)?;
 
   Ok(())
 }
 
-/// 終了時に実行する処理(未実装)
-fn finish() -> AppResult<()> {
-  // デバッグ用にloggerの中身をprint
-  logger::print();
+/// 終了時に実行する処理
+fn finish(config: &AppConfig) -> AppResult<()> {
+  // loggerをdiscord送信
+  if let Err(e) = discord::send_logs(&config.discord.logs_webhook) {
+    error!("ログの送信に失敗");
+    return Err(e);
+  }
+
+  info!("終了処理を実行しました");
 
   Ok(())
 }
