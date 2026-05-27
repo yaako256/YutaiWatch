@@ -45,3 +45,27 @@ pub fn to_chunks(limit: usize) -> Vec<String> {
 
   chunks
 }
+
+// ------------
+// マクロの作成
+// ------------
+#[macro_export]
+macro_rules! log_info {
+  ($place:expr, $msg:expr) => {
+    $crate::log(format!("[INFO]  [{}] {}", $place, $msg))
+  };
+}
+
+#[macro_export]
+macro_rules! log_warn {
+  ($place:expr, $msg:expr) => {
+    $crate::log(format!("[WARN]  [{}] {}", $place, $msg))
+  };
+}
+
+#[macro_export]
+macro_rules! log_error {
+  ($place:expr, $msg:expr) => {
+    $crate::log(format!("[ERROR] [{}] {}", $place, $msg))
+  };
+}
