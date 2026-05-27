@@ -5,6 +5,8 @@ app/src/main.rs
 // 内部ライブラリ(別クレート)
 // kernel
 use kernel;
+// logger
+use logger;
 // config用
 use infra_config;
 // エラー型用
@@ -18,6 +20,9 @@ fn main() -> AppResult<()> {
   // ----------------------
   // 初期設定
   // ----------------------
+  // グローバルloggerのinit
+  logger::init();
+
   // ログ出力の設定
   // 環境変数 RUST_LOG からログレベルを読み込み、無ければデフォルトで「info」にする
   // ファイル出力とかをすぐ増やせて拡張性ましまし、最近流行の定義方法らしい

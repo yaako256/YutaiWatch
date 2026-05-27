@@ -7,6 +7,7 @@ edition = "2024"
 # 子クレートたち
 kernel = { path = "../kernel" }
 shared = { path = "../shared" }
+logger = { path = "../logger" }
 infra_config = { path = "../infra_config" }
 
 # 共通ライブラリ

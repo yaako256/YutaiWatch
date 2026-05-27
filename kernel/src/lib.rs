@@ -1,6 +1,7 @@
 use std::fs;
 
 use infra_config::AppConfig;
+use logger;
 use shared::constants::file::NOTIFIED_KEYS_LIMIT;
 use shared::errors::{AppError, AppResult};
 use shared::{ScrapedItem, ScraperOutput, State, UpdateHistory};
@@ -29,7 +30,7 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
       Err(e) => return Err(AppError::Process(format!("dataフォルダの削除失敗: {}", e))),
     };
   }
-
+  logger::log("めっせーじ");
   // ディレクトリを再作成（中間ディレクトリも含めて作成）
   match fs::create_dir_all(data_dir_path) {
     Ok(_) => (),
