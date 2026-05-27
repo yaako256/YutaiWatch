@@ -1,18 +1,15 @@
 {
-  "schema_version": 1,
-  "last_success_at": "2026-05-25T14:32:10Z",
-  "last_snapshot_hash": "a3f5c8d91e7b4f2c9d8a1b6e4f7c2d9a",
-  "last_seen_item_key": "item_20260525_000123",
+  "creat_state_at": "2026-05-27T12:01:26.489392+09:00",
+  "last_update_at": "2026-05-27T12:01:26.489392+09:00",
+  "last_seen_item": {
+    "ticker_symbol": "1234",
+    "ticker_name": "株式会社サンプル",
+    "published_at": "2026-05-25T09:00:00+09:00",
+    "title": "株主優待変更のお知らせ",
+    "url": "https://example.com/item1"
+  },
   "notified_item_keys": [
-    "item_20260524_000001",
-    "item_20260524_000002",
-    "item_20260524_000003",
-    "item_20260524_000004",
-    "item_20260524_000005",
-    "item_20260525_000001",
-    "item_20260525_000002",
-    "item_20260525_000003",
-    "item_20260525_000004",
-    "item_20260525_000005"
+    "8b3547731a85f73ddc3e7b17de3281c2b7b996c13f0b4da8d2f29b98eac55857",
+    "ac04ba0ef5189fcaea1118d8d25e428ec4904be72b84e493c881a0ab93c1ce60"
   ]
 }

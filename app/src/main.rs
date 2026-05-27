@@ -54,7 +54,7 @@ fn main() -> AppResult<()> {
 
   // 引数にあった関数を実行
   match command_args.as_slice() {
-    //"initialize" => kernel::run_initialize(&config),
+    ["initialize"] => kernel::run_initialize(&config),
     ["monitor"] => kernel::run_monitor(&config),
     [] => Err(AppError::InvalidCommand(
       "コマンドを指定してください".into(),

@@ -16,19 +16,22 @@ pub fn debug() {
 
 /// initialize実行関数
 pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
+  // パスを持っておく
+  let data_dir_path = config.data.dir_path.as_path();
+
   // ----------------------
   // dataディレクトリのリセット
   // ----------------------
   // dataが存在したらディレクトリごと削除
-  if path.exists() {
-    match fs::remove_dir_all(path) {
+  if data_dir_path.exists() {
+    match fs::remove_dir_all(data_dir_path) {
       Ok(_) => (),
       Err(e) => return Err(AppError::Process(format!("dataフォルダの削除失敗: {}", e))),
     };
   }
 
   // ディレクトリを再作成（中間ディレクトリも含めて作成）
-  match fs::create_dir_all(path) {
+  match fs::create_dir_all(data_dir_path) {
     Ok(_) => (),
     Err(e) => return Err(AppError::Process(format!("dataフォルダの作成失敗: {}", e))),
   };
@@ -72,18 +75,18 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
   // state.jsonの作成
   // ----------------------
   // 初期stateに追加(一応中身があるかのif文)
-  if let Some(item) = scraped_items.into_iter().next() {
+  if let Some(item) = scraped_items.first() {
     state.notified_item_keys.extend(fingerprints);
-    state.last_seen_item = item;
+    state.last_seen_item = item.clone();
   }
   // stateの書き込み
-  infra::storage::save_state(config.data.dir_path.as_path(), &state)?;
+  infra::storage::save_state(data_dir_path, &state)?;
 
   // ----------------------
   // detect_history作成
   // ----------------------
   infra::storage::append_detect_history(
-    config.data.dir_path.as_path(),
+    data_dir_path,
     &shared::DetectHistory {
       detected_at: output.fetched_at,
       updated: true,
@@ -106,7 +109,7 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
     update_history.url = item.url;
   }
   // update_historyに記入
-  infra::storage::append_update_history(config.data.dir_path.as_path(), &update_history)?;
+  infra::storage::append_update_history(data_dir_path, &update_history)?;
 
   // initしたことをdiscordに送信(未実装)
   // discord::send_notify(&config.discord.notify_webhook, &scraped_items)?;
