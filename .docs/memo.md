@@ -70,6 +70,20 @@ URLが擬似IDとして判断できるため、それを組み合わせながら
 - prune処理を仮実装した。
 - loggerを実装。finishでログを出力できるところまでやった
 - logsを送信する機能の実装
+- スクレイピングpythonの実装
+- Dockerfileがworkspaceじゃない問題の修正
 
-これでRust側はとりま全部完成した。
-次はpythonのスクレイピング部分を作成していく
+多分全部完成した。(まだ詰めれる部分はあるが...)
+Dockerfileもしっかりして、`make deploy`をするだけでcronも働き、監視を開始するようになった。
+以下改善点
+- discordの文字数制限処理
+- discord送信のリトライ処理(いらない)
+- discordの色処理
+- cronの時間の検討
+- dataをvolume化(再起動時にinitするつもりなのでやらなくてもいいかも)
+- `.config/`をvolume化(これをしないとconfig変更のたびにrebuildが必要)
+- requirements.txt依存がちょっとだけ怖い
+- 説明書READMEを作る
+- コンテナリソース制限 - compose.yaml にメモリ/CPU制限を設定
+- バックアップ戦略 - state.json や data の定期バックアップ
+- ditect_historyをboolじゃなくて検出数に
