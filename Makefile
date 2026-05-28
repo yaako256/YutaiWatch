@@ -48,6 +48,10 @@ devlogs:
 devshell:
 	docker compose exec yutai_watch_dev /bin/sh
 
+# 本番用コンテナに入る
+prodshell:
+	docker exec -it yutai_watch sh
+
 # 完全リセット
 reset:
 	docker compose down --rmi all --volumes --remove-orphans
