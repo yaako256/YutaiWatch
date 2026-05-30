@@ -11,6 +11,9 @@ services:
       - .:/app
       - cargo_cache:/usr/local/cargo/registry
       - target_cache:/app/target
+      # configをvolume化(configを変更してもコンテナを再起動しなくても良くなる)
+      - ./.config/app.dev.toml:/app/.config/app.toml
+      - ./.config/.env.dev:/app/.config/.env
     # 作業用ディレクトリの指定
     working_dir: /app
     # 仮想端末を割り当てる？
@@ -26,6 +29,10 @@ services:
       context: .
       dockerfile: .docker/prod/Dockerfile
     restart: unless-stopped
+    volumes:
+      # configをvolume化(configを変更してもコンテナを再起動しなくても良くなる)
+      - ./.config/app.prod.toml:/app/.config/app.toml
+      - ./.config/.env.prod:/app/.config/.env
 
 volumes:
   cargo_cache:
