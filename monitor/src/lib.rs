@@ -28,18 +28,33 @@ pub fn detect_new_item(
 
   // 新しいitemを入れるところ
   let mut new_items: Vec<(String, ScrapedItem)> = Vec::new();
+  // 既に通知したitemの個数
+  let mut skipped_count = 0;
 
   // itemをforで回す
   for item in items {
     // Sha256IDの生成
     let fingerprint = generate_fingerprint(item);
 
-    if !state.notified_item_keys.contains(&fingerprint) {
-      info!("新着item検出: sha256:{}", fingerprint);
-      new_items.push((fingerprint, item.clone())); // タプルで追加
+    // 既通知かどうかの判定
+    if state.notified_item_keys.contains(&fingerprint) {
+      // 既通知ならカウントだけする
+      // 理論値では確率が高い方をif文のtureの方ににした方が早いらしい
+      skipped_count += 1;
     } else {
-      info!("既通知のitemをスキップ: sha256:{}", fingerprint);
+      // 新規itemだったらpush
+      new_items.push((fingerprint, item.clone())); // タプルで追加
     }
+  }
+
+  // --- ログ出力 ---
+  // 先に既通知のサマリーを出力
+  if skipped_count > 0 {
+    info!("既通知のitemを {} 件スキップしました", skipped_count);
+  }
+  // 次に新着アイテムの詳細を出力
+  for (fingerprint, _) in &new_items {
+    info!("新着item検出: sha256:{}", fingerprint);
   }
 
   // デバッグ用に直値で返す
