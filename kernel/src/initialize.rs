@@ -20,7 +20,7 @@ use super::common::finish;
 /// initialize実行関数
 pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
   // init処理開始をdiscordに送信
-  logger::log(log_info!("prune", "initialize処理実行開始"));
+  logger::log(log_info!("initialize", "initialize処理実行開始"));
 
   // パスを持っておく
   let data_dir_path = config.data.dir_path.as_path();
@@ -141,7 +141,7 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
   }
 
   // initしたことをdiscordに送信
-  logger::log(log_info!("prune", "initialize処理実行完了"));
+  logger::log(log_info!("initialize", "initialize処理実行完了"));
 
   // 終了処理
   finish(config)?;
