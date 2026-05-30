@@ -90,6 +90,8 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
 
   // タプルベクトルの戻り値を各ベクトルに分解
   let (fingerprints, scraped_items): (Vec<String>, Vec<ScrapedItem>) = new_data.into_iter().unzip();
+  // あらかじめ新規item数を取得
+  let new_item_num = fingerprints.len();
 
   // ----------------------
   // state.jsonの作成
@@ -112,7 +114,7 @@ pub fn run_initialize(config: &AppConfig) -> AppResult<()> {
     data_dir_path,
     &shared::DetectHistory {
       detected_at: output.fetched_at,
-      updated: true,
+      new_items: new_item_num,
     },
   ) {
     logger::log(log_error!("initialize", "detect_history作成失敗"));

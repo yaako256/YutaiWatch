@@ -8,5 +8,5 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DetectHistory {
   pub detected_at: DateTime<FixedOffset>,
-  pub updated: bool,
+  pub new_items: usize,
 }
