@@ -1,4 +1,4 @@
-# app.dev.toml
+# .config/dev/app.toml
 # 開発用のconfigファイル
 # ここに定数設定などを書いていく
 

@@ -77,17 +77,19 @@ URLが擬似IDとして判断できるため、それを組み合わせながら
 Dockerfileもしっかりして、`make deploy`をするだけでcronも働き、監視を開始するようになった。
 
 ## 2026年05月30日
+- cronの時間の検討
+- cronを仕様通りにする
 - configファイルをvolmeにマウントした。
 (config変更後の本番用コンテナrebuildが不必要になった)(configを変えるだけで良くなった)
 - configを本番用と開発用で分けた。
-
+- コンテナにリソース制限を追加
 
 以下今後行う改善点
 - ☑githubのContributorsがおかしい問題の修正 → 備忘録も書いた
 - ☑cronの時間の検討
+- ☑cronを仕様通りにする
 - ☑`.config/`をvolume化(これをしないとconfig変更のたびにrebuildが必要)
 - ☑configやenvを開発用と本番用で分けれるようにする
-- ☑cronを仕様通りにする
 - ☑コンテナリソース制限などを設定し、本番用コンテナを改善 - compose.yaml にメモリ/CPU制限を設定
 
 - discordの文字数制限処理

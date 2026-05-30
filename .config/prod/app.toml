@@ -1,4 +1,4 @@
-# app.prod.toml
+# .config/prod/app.toml
 # 本番用のconfigファイル
 # ここに定数設定などを書いていく
 
