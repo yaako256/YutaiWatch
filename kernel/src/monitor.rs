@@ -112,7 +112,7 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
       config.data.dir_path.as_path(),
       &shared::DetectHistory {
         detected_at: output.fetched_at,
-        updated: false,
+        new_items: 0,
       },
     ) {
       logger::log(log_error!("monitor", "detect_historyの更新失敗"));
@@ -128,6 +128,8 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
 
   // タプルベクトルの戻り値を各ベクトルに分解
   let (fingerprints, scraped_items): (Vec<String>, Vec<ScrapedItem>) = new_data.into_iter().unzip();
+  // あらかじめ新規item数を取得
+  let new_item_num = fingerprints.len();
 
   // ----------------------
   // 更新内容を通知
@@ -168,7 +170,7 @@ pub fn run_monitor(config: &AppConfig) -> AppResult<()> {
     config.data.dir_path.as_path(),
     &shared::DetectHistory {
       detected_at: output.fetched_at,
-      updated: true,
+      new_items: new_item_num,
     },
   ) {
     logger::log(log_error!("monitor", "detect_history.json更新失敗"));
