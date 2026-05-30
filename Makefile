@@ -67,7 +67,7 @@ build:
 	docker compose build
 
 
-.PHONY: logs devlogs shell prodshell reset
+.PHONY: logs devlogs shell prodshell ps stats stats-once reset
 ## 本番用コンテナのログをリアルタイム表示
 logs: 
 	docker compose logs -f $(PROD_SERVICE)
@@ -83,6 +83,14 @@ shell:
 ## 本番用コンテナのシェル（sh）に入る
 prodshell:
 	docker compose exec -it $(PROD_SERVICE) sh
+
+## コンテナの起動状態を確認
+ps:
+	docker compose ps
+
+## 起動中のコンテナのメモリ・CPU使用率をリアルタイム表示
+stats:
+	docker compose stats
 
 ## 【危険】完全リセット（コンテナ、イメージ、ボリューム、ネットワークを全削除）
 reset:
