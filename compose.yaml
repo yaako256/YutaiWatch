@@ -33,6 +33,20 @@ services:
       # configをvolume化(configを変更してもコンテナを再起動しなくても良くなる)
       - ./.config/app.prod.toml:/app/.config/app.toml
       - ./.config/.env.prod:/app/.config/.env
+    # 以下本番用制限設定関連
+    # リソース制限の設定（Compose V3仕様）
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0' # CPUを最大1コア分に制限（Playwright用にある程度確保）
+          memory: 1024M # メモリを最大1GBに制限（ブラウザが動くため少し余裕を持たせる）
+    # ログローテーションの設定（ディスク満杯防止）
+    # Dockerのログだけが対象(自前jsonlなどは対象外)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m" # 1つのログファイルは最大10MB
+        max-file: "3" # 過去ログは最大3ファイルまで保持（計30MB）
 
 volumes:
   cargo_cache:
