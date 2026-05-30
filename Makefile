@@ -1,6 +1,6 @@
 # Makefile
 # PHONY: ファイルではないという指定(ファイルは更新されていないと実行されない): 命令である
-.PHONY: run dev prod deploy down logs devlogs devshell build reset
+.PHONY: run dev prod deploy down logs devlogs devshell build reset tree
 
 # デフォルトコマンド（未指定時はhelpを表示）
 CMD ?= help
@@ -55,3 +55,7 @@ prodshell:
 # 完全リセット
 reset:
 	docker compose down --rmi all --volumes --remove-orphans
+
+# treeを表示
+tree:
+	python3 ./generate_tree_ver2.py . 100 target .git

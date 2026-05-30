@@ -73,3 +73,16 @@ git log --all --pretty=format:"%an <%ae>" | sort | uniq
 cd ~/workSpace
 sudo rm -rf {リポジトリ名}-clean {リポジトリ名}-clean.git.backup
 ```
+
+---
+# もしかしたら
+originと同期がされてないとかでエラーが起きるかもしれない。  
+次のコマンドで解決する
+```bash
+# pull
+git pull --rebase origin main
+
+# 確認
+git log --oneline -5
+git status
+```
